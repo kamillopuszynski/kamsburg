@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>KamsBurg — Szczegóły rezerwacji</title>
+  <meta name="color-scheme" content="light dark">
+  <style>
+    :root{
+      --bg:#0b1220; --card:#0b1220cc; --text:#e6eefc; --muted:#a9b8d9;
+      --brand:#5aa9ff; --brand-2:#7c4dff; --border:#23314f;
+      --ok:#22c55e; --err:#ef4444; --warn:#f59e0b;
+      --shadow:0 10px 30px rgba(0,0,0,.35); --radius:14px;
+    }
+    @media (prefers-color-scheme:light){
+      :root{
+        --bg:#f5f7fb; --card:#ffffffd9; --text:#1d2433; --muted:#5b6b88;
+        --brand:#1e88e5; --brand-2:#6a5acd; --border:#d8e0f0;
+        --shadow:0 10px 30px rgba(0,0,0,.08);
+      }
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; color:var(--text); font:16px/1.6 system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;
+      background:
+        radial-gradient(1200px 600px at 10% -10%, rgba(124,77,255,.24), transparent 60%),
+        radial-gradient(1000px 700px at 100% 0%, rgba(30,136,229,.22), transparent 60%),
+        linear-gradient(180deg, var(--bg), var(--bg));
+      background-attachment:fixed;
+    }
+    .container{max-width:900px;margin:0 auto;padding:24px}
+    header{
+      position:sticky;top:0;backdrop-filter:blur(12px) saturate(1.2);
+      background:linear-gradient(180deg,rgba(6,12,24,.65),rgba(6,12,24,.25));
+      border-bottom:1px solid var(--border); z-index:10
+    }
+    .hero{display:flex;gap:14px;align-items:center;padding:16px 24px}
+    .logo{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;
+      color:#fff;background:conic-gradient(from 210deg,var(--brand),var(--brand-2));font-weight:800;box-shadow:var(--shadow)}
+    h1{margin:0;font-size:clamp(22px,3vw,28px)}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:clip}
+    .head{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;gap:10px;align-items:center}
+    .body{padding:16px}
+    .grid{display:grid;grid-template-columns:1.2fr .8fr;gap:18px;margin-top:18px}
+    @media (max-width:900px){.grid{grid-template-columns:1fr}}
+    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    @media (max-width:640px){.form-row{grid-template-columns:1fr}}
+    .field{width:100%;padding:12px 14px;border-radius:12px;border:1.5px solid var(--border);
+      background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.02));color:var(--text);outline:none}
+    .field:focus{border-color:var(--brand);box-shadow:0 0 0 .2rem rgba(90,169,255,.3)}
+    label{font-weight:700;color:var(--muted);font-size:.95rem;margin-bottom:6px;display:block}
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;padding:12px 16px;border-radius:12px;border:none;
+      background-image:linear-gradient(135deg,var(--brand),var(--brand-2));color:#fff;font-weight:800;cursor:pointer;box-shadow:var(--shadow)}
+    .btn[disabled]{opacity:.55;cursor:not-allowed}
+    .btn .spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;display:none;animation:spin .8s linear infinite}
+    .btn.loading .spinner{display:inline-block}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    .kv{display:grid;grid-template-columns:160px 1fr;gap:10px;padding:10px 0;border-bottom:1px dashed var(--border)}
+    .kv:last-child{border-bottom:none}
+    .muted{color:var(--muted)}
+    .danger{background:linear-gradient(180deg,rgba(239,68,68,.12),rgba(239,68,68,.06));border:1px solid rgba(239,68,68,.35)}
+    .note{padding:10px 12px;border-radius:12px;margin-top:10px}
+
+    .toast{position:fixed;right:18px;bottom:18px;z-index:50;max-width:420px;transform:translateY(20px);opacity:0;
+      transition:transform .25s ease,opacity .25s ease}
+    .toast.show{transform:translateY(0);opacity:1}
+    .msg{padding:14px 16px;margin-top:10px;border-radius:12px;border:1px solid var(--border);background:var(--card);box-shadow:var(--shadow)}
+    .success{border-color:rgba(34,197,94,.5)} .error{border-color:rgba(239,68,68,.55)} .info{border-color:rgba(90,169,255,.55)}
+    .msg .title{font-weight:800;margin-bottom:4px}
+    .msg .desc{color:var(--muted)}
+    .placeholder{padding:18px;border:1px dashed var(--border);border-radius:12px;color:var(--muted);text-align:center}
+    .small{font-size:.9rem}
+  </style>
+</head>
+<body>
+<header>
+  <div class="hero container">
+    <div class="logo">KB</div>
+    <div>
+      <h1>Szczegóły / anulowanie rezerwacji</h1>
+      <div class="small muted">Wpisz numer rezerwacji (ID) — opcjonalnie datę — i adres e-mail użyty przy rezerwacji.</div>
+    </div>
+  </div>
+</header>
+
+<main class="container">
+  <section class="grid">
+    <!-- WYSZUKIWANIE -->
+    <article class="card" aria-labelledby="searchTitle">
+      <div class="head">
+        <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="m21.53 20.47l-3.66-3.66A8.46 8.46 0 0 0 19 11.5A8.5 8.5 0 1 0 10.5 20a8.46 8.46 0 0 0 5.31-1.13l3.66 3.66l1.06-1.06ZM4 11.5A6.5 6.5 0 1 1 10.5 18A6.51 6.51 0 0 1 4 11.5Z"/></svg>
+        <h2 id="searchTitle" style="margin:0">Znajdź rezerwację</h2>
+      </div>
+      <div class="body">
+        <form id="lookupForm">
+          <div class="form-row">
+            <div>
+              <label for="resId">Numer rezerwacji (ID)</label>
+              <input id="resId" class="field" placeholder="np. -NxYzABC123defGhIJkL" required/>
+            </div>
+            <div>
+              <label for="date">Data (opcjonalnie, przyspieszy wyszukiwanie)</label>
+              <input id="date" class="field" type="date"/>
+            </div>
+          </div>
+          <div class="form-row" style="margin-top:12px">
+            <div>
+              <label for="email">Email użyty przy rezerwacji</label>
+              <input id="email" class="field" type="email" placeholder="twoj@email.pl" required/>
+            </div>
+            <div style="display:flex;align-items:flex-end">
+              <button type="submit" class="btn" id="lookupBtn">
+                <span class="spinner" aria-hidden="true"></span>
+                <span>🔎 Szukaj</span>
+              </button>
+            </div>
+          </div>
+          <div class="note info small" style="margin-top:10px">
+            Wskazówka: jeśli nie znasz daty, zostaw puste — przeszukamy wszystkie dni (wolniej).
+          </div>
+        </form>
+      </div>
+    </article>
+
+    <!-- SZCZEGÓŁY & ANULACJA -->
+    <article class="card" id="detailsCard" style="display:none" aria-labelledby="detailsTitle">
+      <div class="head">
+        <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 12q-1.65 0-2.825-1.175T8 8q0-1.65 1.175-2.825T12 4q1.65 0 2.825 1.175T16 8q0 1.65-1.175 2.825T12 12Zm0 2q2.75 0 5.5 1.1T21 18v2H3v-2q0-1.8 2.75-2.9T12 14Z"/></svg>
+        <h2 id="detailsTitle" style="margin:0">Szczegóły rezerwacji</h2>
+      </div>
+      <div class="body">
+        <div id="detailsWrap"></div>
+
+        <div class="note danger" style="margin-top:14px">
+          <strong>Uwaga:</strong> Anulowanie jest nieodwracalne. Po potwierdzeniu rezerwacja zostanie usunięta z systemu.
+        </div>
+
+        <div style="display:flex;gap:10px;align-items:center;margin-top:12px">
+          <button class="btn" id="cancelBtn" style="background-image:linear-gradient(135deg,#ef4444,#f97316)">
+            <span class="spinner" aria-hidden="true"></span>
+            <span>🗑️ Anuluj rezerwację</span>
+          </button>
+          <button class="btn" id="backBtn" type="button">⬅️ Wróć do wyszukiwania</button>
+        </div>
+      </div>
+    </article>
+
+    <!-- Placeholder gdy brak danych -->
+    <article class="card" id="placeholderCard">
+      <div class="head">
+        <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 1 0 .001 20.001A10 10 0 0 0 12 2Zm1 15h-2v-2h2v2Zm0-4h-2V7h2v6Z"/></svg>
+        <h2 style="margin:0">Jak to działa?</h2>
+      </div>
+      <div class="body">
+        <div class="placeholder">
+          Wpisz numer rezerwacji i email. Po znalezieniu rekordu zobaczysz szczegóły i przycisk „Anuluj rezerwację”.
+        </div>
+      </div>
+    </article>
+  </section>
+
+  <!-- Toasts -->
+  <div id="toast" class="toast" aria-live="polite" aria-atomic="true"></div>
+</main>
+
+<!-- Firebase + logika -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+  import { getDatabase, ref, onValue, get, child, remove } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAOIXtjM9PMFXa0YFZfiDpfXlq_5sKxjv8",
+    authDomain: "systemrezerwacji-dbd7c.firebaseapp.com",
+    databaseURL: "https://systemrezerwacji-dbd7c-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "systemrezerwacji-dbd7c",
+    storageBucket: "systemrezerwacji-dbd7c.firebasestorage.app",
+    messagingSenderId: "1018043438907",
+    appId: "1:1018043438907:web:d9b9e9190bd189dc2b491e",
+    measurementId: "G-YXB460ZGR1"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db  = getDatabase(app);
+
+  const resIdEl   = document.getElementById('resId');
+  const dateEl    = document.getElementById('date');
+  const emailEl   = document.getElementById('email');
+  const lookupBtn = document.getElementById('lookupBtn');
+  const detailsCard = document.getElementById('detailsCard');
+  const placeholderCard = document.getElementById('placeholderCard');
+  const detailsWrap = document.getElementById('detailsWrap');
+  const cancelBtn  = document.getElementById('cancelBtn');
+  const backBtn    = document.getElementById('backBtn');
+  const toastEl    = document.getElementById('toast');
+
+  // min data = dziś (nie wymagane, ale spójne)
+  dateEl.min = new Date('2000-01-01').toISOString().split('T')[0];
+
+  let found = null; // {date, id, data}
+
+  document.getElementById('lookupForm').addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const id = resIdEl.value.trim();
+    const date = dateEl.value.trim();
+    const email = emailEl.value.trim().toLowerCase();
+
+    if(!id || !email){ return toast('Podaj numer rezerwacji i e-mail.', 'error'); }
+
+    loading(lookupBtn, true);
+    try{
+      if(date){
+        // szybka ścieżka: znamy datę
+        const snap = await get(child(ref(db), `reservations/${date}/${id}`));
+        if(snap.exists()){
+          const data = snap.val();
+          if((data.email||'').toLowerCase() !== email){
+            toast('E-mail nie pasuje do rezerwacji.', 'error');
+            showDetails(null);
+          }else{
+            found = { date, id, data };
+            showDetails(found);
+            toast('Znaleziono rezerwację.', 'success');
+          }
+        }else{
+          toast('Nie znaleziono rezerwacji dla podanej daty.', 'error');
+          showDetails(null);
+        }
+      }else{
+        // pełne skanowanie: przejdź po wszystkich datach (MVP)
+        const root = await get(child(ref(db), 'reservations'));
+        if(!root.exists()){ toast('Brak rezerwacji w bazie.', 'error'); showDetails(null); return; }
+        let match=null, matchDate=null;
+        const val = root.val(); // {date:{id:obj}}
+        // iteracja po datach
+        for(const d of Object.keys(val)){
+          if(val[d] && val[d][id]){
+            matchDate = d;
+            match = val[d][id];
+            break;
+          }
+        }
+        if(!match){
+          toast('Nie znaleziono rezerwacji o podanym numerze.', 'error');
+          showDetails(null);
+        }else if((match.email||'').toLowerCase() !== email){
+          toast('E-mail nie pasuje do rezerwacji.', 'error');
+          showDetails(null);
+        }else{
+          found = { date: matchDate, id, data: match };
+          showDetails(found);
+          toast(`Znaleziono rezerwację z dnia ${matchDate}.`, 'success');
+        }
+      }
+    }catch(err){
+      console.error(err);
+      toast('Błąd podczas wyszukiwania. Spróbuj ponownie.', 'error');
+      showDetails(null);
+    }finally{
+      loading(lookupBtn,false);
+    }
+  });
+
+  backBtn.addEventListener('click', ()=>{
+    found=null; showDetails(null);
+  });
+
+  cancelBtn.addEventListener('click', async ()=>{
+    if(!found){ return; }
+    // prosty guard na zgodność emaila (dodatkowo)
+    const typedEmail = emailEl.value.trim().toLowerCase();
+    if((found.data.email||'').toLowerCase() !== typedEmail){
+      return toast('E-mail nie pasuje do rezerwacji — nie można anulować.', 'error');
+    }
+    // potwierdzenie
+    const ok = confirm(`Na pewno anulować rezerwację ${found.id} z dnia ${found.date} o ${fmtHour(found.data.hour)}?`);
+    if(!ok) return;
+
+    loading(cancelBtn,true);
+    try{
+      await remove(ref(db, `reservations/${found.date}/${found.id}`));
+      toast('Rezerwacja została anulowana.', 'success');
+      found=null;
+      showDetails(null);
+    }catch(err){
+      console.error(err);
+      toast('Nie udało się anulować. Spróbuj ponownie.', 'error');
+    }finally{
+      loading(cancelBtn,false);
+    }
+  });
+
+  function showDetails(entry){
+    if(!entry){
+      detailsCard.style.display='none';
+      placeholderCard.style.display='block';
+      detailsWrap.innerHTML='';
+      return;
+    }
+    placeholderCard.style.display='none';
+    detailsCard.style.display='block';
+
+    const r = entry.data;
+    const rows = [
+      ['Numer rezerwacji (ID)', entry.id],
+      ['Data', entry.date || entry.data?.date || '(brak)'],
+      ['Godzina', fmtHour(r.hour)],
+      ['Liczba osób', r.people],
+      ['Stolik', `nr ${r.tableNumber} (${r.tableCategory} os.)`],
+      ['Imię i nazwisko', `${r.firstName} ${r.lastName}`],
+      ['Telefon', r.phone],
+      ['Email', r.email],
+      ['Utworzono', fmtTs(r.timestamp)]
+    ];
+    detailsWrap.innerHTML = rows.map(([k,v])=>{
+      return `<div class="kv"><div class="muted">${escapeHtml(k)}</div><div>${escapeHtml(String(v ?? ''))}</div></div>`;
+    }).join('');
+  }
+
+  function fmtHour(h){ return `${parseInt(h,10)}:00`; }
+  function fmtTs(ts){ try{ return new Date(ts).toLocaleString(); }catch{ return ts||'' } }
+  function escapeHtml(s){ return s.replace(/[&<>"']/g, m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;' }[m])) }
+
+  function toast(text, type='info'){
+    const box = document.createElement('div'); box.className = `msg ${type}`;
+    box.innerHTML = `<div class="title">${type==='success'?'Sukces':type==='error'?'Błąd':'Informacja'}</div>
+                     <div class="desc">${escapeHtml(text)}</div>`;
+    toastEl.appendChild(box);
+    toastEl.classList.add('show');
+    setTimeout(()=>{ toastEl.classList.remove('show'); setTimeout(()=>toastEl.innerHTML='',250); }, 5200);
+  }
+  function loading(btn, on){
+    if(on){ btn.classList.add('loading'); btn.setAttribute('disabled',''); }
+    else { btn.classList.remove('loading'); btn.removeAttribute('disabled'); }
+  }
+</script>
+</body>
+</html>
