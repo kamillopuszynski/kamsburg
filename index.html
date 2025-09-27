@@ -91,20 +91,25 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    // Apps Script email webhook
+    // Apps Script Web App URL (deployed endpoint)
     const EMAIL_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbx7qn3F98YAr1spnIVpNc9v_eFvmXLz4MwNyyDplqClMJqN-UrS933slj5wBIxIancg/exec";
 
-    // Helpers
+    // Availability + state
     const OPENING_HOURS = { start: 10, end: 22 };
+    const RES_DURATION = 2;
+    const TABLES = {2:2,4:2,6:2,8:2};
+
     let selectedHour = null;
     let cacheForDay = [];
 
+    // DOM
     const timeSlotsEl = document.getElementById('timeSlots');
     const submitBtn = document.getElementById('submitBtn');
     const msgEl = document.getElementById('message');
     const dateEl = document.getElementById('date');
     const peopleEl = document.getElementById('people');
 
+    // min date = today
     dateEl.min = new Date().toISOString().split('T')[0];
 
     // Generate time slots
@@ -146,6 +151,7 @@
     function updateSlotAvailability() {
       const people = parseInt(peopleEl.value || '0', 10);
       const dateStr = dateEl.value;
+
       document.querySelectorAll('.time-slot').forEach(slot => {
         slot.classList.remove('unavailable');
         const hour = parseInt(slot.dataset.hour, 10);
@@ -161,20 +167,16 @@
         }
         if (!people || !dateStr) return;
 
-        const unavailable = isHourUnavailable(people, dateStr, hour);
+        const unavailable = isHourUnavailable(people, hour);
         if (unavailable) slot.classList.add('unavailable');
       });
     }
 
-    function isHourUnavailable(people, dateStr, hour) {
-      const RES_DURATION = 2;
-      const TABLES = {2:2,4:2,6:2,8:2};
+    function isHourUnavailable(people, hour) {
+      // pick table category
+      let cat = 2; for (const s of [2,4,6,8]) { if (people <= s) { cat = s; break; } }
 
-      // Choose table category
-      let cat = 2;
-      for (const s of [2,4,6,8]) { if (people <= s) { cat = s; break; } }
-
-      // Occupied set (ignore cancelled)
+      // occupied set (ignore cancelled)
       const occ = new Set();
       cacheForDay
         .filter(r => r.status !== 'cancelled')
@@ -185,11 +187,11 @@
           }
         });
 
-      // Is any table free in that category?
+      // any free in that category?
       for (let i=1; i<=TABLES[cat]; i++) {
-        if (!occ.has(`${cat}_${i}`)) return false; // found free → hour is available
+        if (!occ.has(`${cat}_${i}`)) return false;
       }
-      return true; // none free → unavailable
+      return true;
     }
 
     // Submit
@@ -208,9 +210,7 @@
         return showMsg("Proszę wypełnić wszystkie pola", "error");
       }
 
-      // Pick table (simple: first free in that category)
-      const RES_DURATION = 2;
-      const TABLES = {2:2,4:2,6:2,8:2};
+      // choose table
       let cat = 2; for (const s of [2,4,6,8]) { if (people <= s) { cat = s; break; } }
 
       const occ = new Set();
@@ -230,7 +230,7 @@
       if (!tableNumber) return showMsg("Ta godzina jest już zajęta.", "error");
 
       try {
-        // Create node key first
+        // create node key first
         const newRef = push(ref(db, `reservations/${date}`));
         const id = newRef.key;
         const cancelCode = String(Math.floor(100000 + Math.random()*900000)); // 6-digit
@@ -250,15 +250,19 @@
           timestamp: new Date().toISOString()
         };
 
-        // Save reservation
+        // save reservation
         await set(newRef, payload);
 
-        // Send confirmation email with link + code
+        // send confirmation email (FORM DATA → Apps Script-friendly)
+        const body = new URLSearchParams();
+        body.append("to", email);
+        body.append("manageUrl", manageUrl);
+        body.append("reservation", JSON.stringify(payload));
+
         await fetch(EMAIL_WEBHOOK_URL, {
           method: "POST",
           mode: "no-cors",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ to: email, reservation: payload, manageUrl })
+          body
         });
 
         showMsg(`Rezerwacja potwierdzona! Sprawdź maila: ${email}`, "success");
