@@ -3,130 +3,82 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>System Rezerwacji Stolików - KamsBurg</title>
+  <title>KamsBurg – Rezerwacja stolików</title>
   <style>
+    /* --- styles same as before --- */
     * { margin:0; padding:0; box-sizing:border-box; }
     body { font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; background:#f5f5f5; color:#333; line-height:1.6; }
     .container { max-width:800px; margin:0 auto; padding:20px; }
     header { background:#2c3e50; color:#fff; padding:2rem 0; text-align:center; margin-bottom:2rem; box-shadow:0 2px 5px rgba(0,0,0,.1); }
-    header h1 { font-size:2.5rem; font-weight:300; letter-spacing:1px; }
+    header h1 { font-size:2.2rem; font-weight:300; }
     .reservation-form { background:#fff; padding:2rem; border-radius:8px; box-shadow:0 2px 10px rgba(0,0,0,.1); margin-bottom:2rem; }
-    .form-group { margin-bottom:1.5rem; }
-    label { display:block; margin-bottom:.5rem; font-weight:500; color:#555; }
-    input, select { width:100%; padding:.75rem; border:2px solid #ddd; border-radius:4px; font-size:1rem; transition:border-color .3s; }
-    input:focus, select:focus { outline:none; border-color:#3498db; }
+    .form-group { margin-bottom:1rem; }
+    label { display:block; margin-bottom:.3rem; font-weight:500; }
+    input, select { width:100%; padding:.6rem; border:2px solid #ddd; border-radius:4px; font-size:1rem; }
     .time-slots { display:grid; grid-template-columns:repeat(auto-fill, minmax(80px, 1fr)); gap:10px; margin-top:1rem; }
-    .time-slot { padding:.5rem; text-align:center; border:2px solid #ddd; border-radius:4px; cursor:pointer; transition:.3s; background:#fff; }
-    .time-slot:hover { border-color:#3498db; background:#f0f8ff; }
+    .time-slot { padding:.5rem; text-align:center; border:2px solid #ddd; border-radius:4px; cursor:pointer; }
     .time-slot.selected { background:#3498db; color:#fff; border-color:#3498db; }
-    .time-slot.unavailable { background:#e0e0e0; color:#999; cursor:not-allowed; opacity:.6; }
-    .time-slot.suggested { border-color:#f39c12; background:#fff3cd; color:#856404; }
-    button { background:#3498db; color:#fff; padding:.75rem 2rem; border:none; border-radius:4px; font-size:1rem; cursor:pointer; transition:background .3s; width:100%; margin-top:1rem; }
-    button:hover { background:#2980b9; }
+    .time-slot.unavailable { background:#e0e0e0; color:#999; cursor:not-allowed; }
+    button { background:#3498db; color:#fff; padding:.7rem 2rem; border:none; border-radius:4px; font-size:1rem; cursor:pointer; width:100%; margin-top:1rem; }
     button:disabled { background:#bdc3c7; cursor:not-allowed; }
-    .message { padding:1rem; border-radius:4px; margin-top:1rem; display:none; }
-    .message.success { background:#d4edda; color:#155724; border:1px solid #c3e6cb; }
-    .message.error { background:#f8d7da; color:#721c24; border:1px solid #f5c6cb; }
-    .message.info { background:#d1ecf1; color:#0c5460; border:1px solid #bee5eb; }
-    .table-status { background:#fff; padding:2rem; border-radius:8px; box-shadow:0 2px 10px rgba(0,0,0,.1); margin-top:2rem; }
-    .table-status h2 { margin-bottom:1rem; color:#2c3e50; }
-    .table-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:1rem; }
-    .table-card { padding:1rem; border:2px solid #ddd; border-radius:4px; text-align:center; transition:.3s; }
-    .table-card.occupied { background:#ffebee; border-color:#f44336; }
-    .table-card.available { background:#e8f5e9; border-color:#4caf50; }
-    .table-number { font-size:1.2rem; font-weight:bold; margin-bottom:.5rem; }
-    .table-info { font-size:.9rem; color:#666; }
-    .placeholder-message { text-align:center; color:#999; padding:2rem; font-style:italic; }
-    .time-info { background:#e3f2fd; padding:1rem; border-radius:4px; margin-bottom:1rem; text-align:center; color:#1976d2; font-weight:500; }
-    .form-row { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
-    @media (max-width:600px){
-      .container { padding:10px; }
-      header h1 { font-size:2rem; }
-      .reservation-form { padding:1rem; }
-      .time-slots { grid-template-columns:repeat(auto-fill, minmax(60px, 1fr)); }
-      .form-row { grid-template-columns:1fr; }
-    }
+    .message { margin-top:1rem; padding:.8rem; border-radius:4px; display:none; }
+    .message.success { background:#d4edda; color:#155724; }
+    .message.error { background:#f8d7da; color:#721c24; }
   </style>
 </head>
 <body>
   <header>
-    <h1>KamsBurg - System Rezerwacji Stolików</h1>
+    <h1>KamsBurg – System rezerwacji stolików</h1>
   </header>
 
   <div class="container">
     <div class="reservation-form">
-      <h2>Dokonaj rezerwacji</h2>
       <form id="reservationForm">
-        <div class="form-row">
-          <div class="form-group">
-            <label for="firstName">Imię:</label>
-            <input type="text" id="firstName" required>
-          </div>
-          <div class="form-group">
-            <label for="lastName">Nazwisko:</label>
-            <input type="text" id="lastName" required>
-          </div>
+        <div class="form-group">
+          <label for="firstName">Imię:</label>
+          <input type="text" id="firstName" required>
         </div>
-
-        <div class="form-row">
-          <div class="form-group">
-            <label for="phone">Telefon:</label>
-            <input type="tel" id="phone" required>
-          </div>
-          <div class="form-group">
-            <label for="email">Email:</label>
-            <input type="email" id="email" required>
-          </div>
+        <div class="form-group">
+          <label for="lastName">Nazwisko:</label>
+          <input type="text" id="lastName" required>
         </div>
-
+        <div class="form-group">
+          <label for="phone">Telefon:</label>
+          <input type="tel" id="phone" required>
+        </div>
+        <div class="form-group">
+          <label for="email">Email:</label>
+          <input type="email" id="email" required>
+        </div>
         <div class="form-group">
           <label for="people">Liczba osób:</label>
           <select id="people" required>
-            <option value="">Wybierz liczbę osób</option>
-            <option value="2">2 osoby</option>
-            <option value="4">4 osoby</option>
-            <option value="6">6 osób</option>
-            <option value="8">8 osób</option>
+            <option value="">Wybierz</option>
+            <option value="2">2</option>
+            <option value="4">4</option>
+            <option value="6">6</option>
+            <option value="8">8</option>
           </select>
         </div>
-
         <div class="form-group">
           <label for="date">Data:</label>
           <input type="date" id="date" required>
         </div>
-
         <div class="form-group">
           <label>Godzina:</label>
-          <div class="time-slots" id="timeSlots"></div>
+          <div id="timeSlots" class="time-slots"></div>
         </div>
-
         <button type="submit" id="submitBtn" disabled>Zarezerwuj stolik</button>
       </form>
-
       <div id="message" class="message"></div>
-    </div>
-
-    <div class="table-status" id="tableStatusSection" style="display:none;">
-      <h2>Status stolików</h2>
-      <div id="timeInfo" class="time-info"></div>
-      <div class="table-grid" id="tableGrid"></div>
-    </div>
-
-    <div class="table-status" id="tablePlaceholder">
-      <div class="placeholder-message">
-        Wybierz godzinę, aby zobaczyć dostępność stolików
-      </div>
     </div>
   </div>
 
-  <!-- Firebase + logika aplikacji -->
   <script type="module">
-    /************ Firebase imports (CDN) ************/
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-    import { getDatabase, ref, onValue, push, set } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
-    import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-functions.js";
+    import { getDatabase, ref, push, set } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
-    /************ Konfiguracja Firebase ************/
+    // 🔥 your Firebase config
     const firebaseConfig = {
       apiKey: "AIzaSyAOIXtjM9PMFXa0YFZfiDpfXlq_5sKxjv8",
       authDomain: "systemrezerwacji-dbd7c.firebaseapp.com",
@@ -134,276 +86,83 @@
       projectId: "systemrezerwacji-dbd7c",
       storageBucket: "systemrezerwacji-dbd7c.firebasestorage.app",
       messagingSenderId: "1018043438907",
-      appId: "1:1018043438907:web:d9b9e9190bd189dc2b491e",
-      measurementId: "G-YXB460ZGR1"
+      appId: "1:1018043438907:web:d9b9e9190bd189dc2b491e"
     };
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    // IMPORTANT: region must match function deploy region
-    const functions = getFunctions(app, "europe-west1");
-    const sendReservationEmail = httpsCallable(functions, "sendReservationEmail");
+    const OPENING_HOURS = { start:10, end:22 };
+    let selectedHour = null;
 
-    /************ Ustawienia lokalu ************/
-    const TABLES = { 2:2, 4:2, 6:2, 8:2 };
-    const OPENING_HOURS = { start:10, end:22 }; // sloty 10..21
-    const RESERVATION_DURATION = 2;             // godziny
-
-    // Stan
-    let selectedTime = null;
-    let reservationsCache = [];
-
-    // DOM
-    const dateEl = document.getElementById('date');
-    const peopleEl = document.getElementById('people');
+    const timeSlotsEl = document.getElementById('timeSlots');
     const submitBtn = document.getElementById('submitBtn');
     const msgEl = document.getElementById('message');
 
-    // min data = dziś
-    dateEl.min = new Date().toISOString().split('T')[0];
-
-    function generateTimeSlots(){
-      const cont = document.getElementById('timeSlots');
-      cont.innerHTML = '';
-      for(let h=OPENING_HOURS.start; h<OPENING_HOURS.end; h++){
-        const d = document.createElement('div');
-        d.className = 'time-slot';
-        d.textContent = `${h}:00`;
-        d.dataset.hour = h;
-        d.addEventListener('click', selectTimeSlot);
-        cont.appendChild(d);
-      }
+    // generate time slots
+    for (let h = OPENING_HOURS.start; h < OPENING_HOURS.end; h++) {
+      const div = document.createElement('div');
+      div.textContent = `${h}:00`;
+      div.className = 'time-slot';
+      div.dataset.hour = h;
+      div.onclick = () => {
+        document.querySelectorAll('.time-slot').forEach(s=>s.classList.remove('selected'));
+        div.classList.add('selected');
+        selectedHour = h;
+        submitBtn.disabled = false;
+      };
+      timeSlotsEl.appendChild(div);
     }
 
-    function selectTimeSlot(e){
-      const slot = e.currentTarget;
-      if (slot.classList.contains('unavailable')) return;
-      document.querySelectorAll('.time-slot').forEach(s=>s.classList.remove('selected','suggested'));
-      slot.classList.add('selected');
-      selectedTime = parseInt(slot.dataset.hour,10);
-      submitBtn.disabled = !canSubmit();
-      showTableStatus();
-    }
-
-    function canSubmit(){
-      return !!dateEl.value && Number.isInteger(selectedTime) && !!peopleEl.value;
-    }
-
-    function listenForDate(dateStr){
-      if(!dateStr) return;
-      const dateRef = ref(db, `reservations/${dateStr}`);
-      onValue(dateRef, (snap)=>{
-        const val = snap.val();
-        reservationsCache = val ? Object.entries(val).map(([id, r])=>({ id, ...r })) : [];
-        updateTimeSlots();
-        if(selectedTime !== null) showTableStatus();
-      });
-    }
-
-    function checkAvailability(people, dateStr, hour){
-      const reservationsForDate = reservationsCache.filter(r => r.date === dateStr);
-      let tableCategory = 2;
-      for (let size of [2,4,6,8]) {
-        if (people <= size) { tableCategory = size; break; }
-      }
-      const occupied = new Set();
-      reservationsForDate.forEach(r=>{
-        const resHour = parseInt(r.hour,10);
-        if (Math.abs(resHour - hour) < RESERVATION_DURATION) {
-          occupied.add(`${r.tableCategory}_${r.tableNumber}`);
-        }
-      });
-      for (let i=1; i<=TABLES[tableCategory]; i++){
-        if(!occupied.has(`${tableCategory}_${i}`)){
-          return { available:true, tableCategory, tableNumber:i };
-        }
-      }
-      return { available:false };
-    }
-
-    function findNearestAvailableTime(people, dateStr, hour){
-      for (let off=1; off < (OPENING_HOURS.end - OPENING_HOURS.start); off++){
-        const after = hour + off;
-        if(after < OPENING_HOURS.end){
-          const a = checkAvailability(people, dateStr, after);
-          if(a.available) return after;
-        }
-        const before = hour - off;
-        if(before >= OPENING_HOURS.start){
-          const b = checkAvailability(people, dateStr, before);
-          if(b.available) return before;
-        }
-      }
-      return null;
-    }
-
-    function updateTimeSlots(){
-      const people = parseInt(peopleEl.value || '0',10);
-      const dateStr = dateEl.value;
-
-      document.querySelectorAll('.time-slot').forEach(slot=>{
-        slot.classList.remove('unavailable','suggested');
-        const hour = parseInt(slot.dataset.hour,10);
-
-        // zablokuj przeszłe godziny „dzisiaj”
-        if(dateStr){
-          const now = new Date();
-          const today = now.toISOString().split('T')[0];
-          if(dateStr === today && hour <= now.getHours()){
-            slot.classList.add('unavailable');
-            return;
-          }
-        }
-        if(!people || !dateStr) return;
-
-        const availability = checkAvailability(people, dateStr, hour);
-        if(!availability.available){
-          slot.classList.add('unavailable');
-        }
-      });
-
-      submitBtn.disabled = !canSubmit();
-    }
-
-    function showTableStatus(){
-      const dateStr = dateEl.value;
-      if(!dateStr || selectedTime===null){
-        document.getElementById('tableStatusSection').style.display = 'none';
-        document.getElementById('tablePlaceholder').style.display = 'block';
-        return;
-      }
-      document.getElementById('tableStatusSection').style.display = 'block';
-      document.getElementById('tablePlaceholder').style.display = 'none';
-
-      document.getElementById('timeInfo').textContent =
-        `Dostępność stolików na dzień ${dateStr} o godzinie ${selectedTime}:00`;
-
-      const grid = document.getElementById('tableGrid');
-      grid.innerHTML = '';
-
-      const occupied = new Set();
-      reservationsCache
-        .filter(r => r.date === dateStr)
-        .forEach(r=>{
-          const resHour = parseInt(r.hour,10);
-          if (Math.abs(resHour - selectedTime) < RESERVATION_DURATION) {
-            occupied.add(`${r.tableCategory}_${r.tableNumber}`);
-          }
-        });
-
-      Object.entries(TABLES).forEach(([size, count])=>{
-        for(let i=1;i<=count;i++){
-          const card = document.createElement('div');
-          card.className = 'table-card';
-          const key = `${size}_${i}`;
-          const isOcc = occupied.has(key);
-          card.classList.add(isOcc ? 'occupied' : 'available');
-          card.innerHTML = `
-            <div class="table-number">Stolik ${i}</div>
-            <div class="table-info">${size} osób</div>
-            <div class="table-info">${isOcc ? 'Zajęty' : 'Wolny'}</div>
-          `;
-          grid.appendChild(card);
-        }
-      });
-    }
-
-    function showMessage(text, type){
-      msgEl.textContent = text;
-      msgEl.className = `message ${type}`;
-      msgEl.style.display = 'block';
-      setTimeout(()=>{ msgEl.style.display = 'none'; }, 5000);
-    }
-
-    // Formularz – zapis do RTDB + wywołanie funkcji maila
+    // form submit
     document.getElementById('reservationForm').addEventListener('submit', async (e)=>{
       e.preventDefault();
-
       const firstName = document.getElementById('firstName').value.trim();
-      const lastName  = document.getElementById('lastName').value.trim();
-      const phone     = document.getElementById('phone').value.trim();
-      const email     = document.getElementById('email').value.trim();
-      const people    = parseInt(peopleEl.value,10);
-      const dateStr   = dateEl.value;
-      const hour      = selectedTime;
+      const lastName = document.getElementById('lastName').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const people = parseInt(document.getElementById('people').value, 10);
+      const date = document.getElementById('date').value;
 
-      if (!firstName || !lastName || !phone || !email || !people || !dateStr || hour===null){
-        showMessage('Proszę wypełnić wszystkie pola', 'error');
+      if (!firstName || !lastName || !phone || !email || !people || !date || selectedHour===null) {
+        showMsg("Proszę wypełnić wszystkie pola", "error");
         return;
       }
 
-      const availability = checkAvailability(people, dateStr, hour);
+      const payload = {
+        firstName, lastName, phone, email,
+        people, date, hour: selectedHour,
+        timestamp: new Date().toISOString()
+      };
 
-      if (availability.available){
-        const payload = {
-          firstName, lastName, phone, email,
-          people, date: dateStr, hour,
-          tableCategory: availability.tableCategory,
-          tableNumber: availability.tableNumber,
-          timestamp: new Date().toISOString()
-        };
+      try {
+        const newRef = push(ref(db, `reservations/${date}`));
+        await set(newRef, payload);
 
-        try{
-          // 1) Zapis
-          const newRef = push(ref(db, `reservations/${dateStr}`));
-          await set(newRef, payload);
+        // call your Apps Script endpoint for email
+        await fetch("https://script.google.com/macros/s/AKfycbx7qn3F98YAr1spnIVpNc9v_eFvmXLz4MwNyyDplqClMJqN-UrS933slj5wBIxIancg/exec", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ to: email, reservation: payload })
+        });
 
-          // 2) Mail (callable)
-          try {
-            await sendReservationEmail({ to: email, reservation: payload });
-          } catch (mailErr) {
-            console.error("Email send error:", mailErr);
-            // nie blokujemy UX
-          }
-
-          showMessage(
-            `Rezerwacja potwierdzona! ${firstName} ${lastName}, stolik dla ${people} osób, nr ${availability.tableNumber} na ${hour}:00. Potwierdzenie wysłano na ${email}`,
-            'success'
-          );
-
-          // reset UI
-          e.target.reset();
-          document.querySelectorAll('.time-slot').forEach(s=>s.classList.remove('selected','suggested'));
-          selectedTime = null;
-          submitBtn.disabled = true;
-
-          document.getElementById('tableStatusSection').style.display = 'none';
-          document.getElementById('tablePlaceholder').style.display = 'block';
-          updateTimeSlots();
-        }catch(err){
-          console.error(err);
-          showMessage('Błąd zapisu rezerwacji. Spróbuj ponownie.', 'error');
-        }
-      } else {
-        const nearestHour = findNearestAvailableTime(people, dateStr, hour);
-        if (nearestHour !== null){
-          document.querySelectorAll('.time-slot').forEach(slot=>{
-            slot.classList.remove('suggested');
-            if (parseInt(slot.dataset.hour,10) === nearestHour){
-              slot.classList.add('suggested');
-            }
-          });
-          showMessage(`Niestety, wybrana godzina jest zajęta. Proponujemy ${nearestHour}:00`, 'info');
-        } else {
-          showMessage('Niestety, nie ma dostępnych stolików na ten dzień', 'error');
-        }
+        showMsg(`Rezerwacja potwierdzona! Email wysłany na ${email}`, "success");
+        e.target.reset();
+        document.querySelectorAll('.time-slot').forEach(s=>s.classList.remove('selected'));
+        selectedHour = null;
+        submitBtn.disabled = true;
+      } catch (err) {
+        console.error(err);
+        showMsg("Błąd podczas rezerwacji", "error");
       }
     });
 
-    peopleEl.addEventListener('change', ()=>{
-      updateTimeSlots();
-      if(selectedTime!==null) showTableStatus();
-    });
-
-    dateEl.addEventListener('change', ()=>{
-      listenForDate(dateEl.value);
-      updateTimeSlots();
-      if(selectedTime!==null) showTableStatus();
-    });
-
-    // Start
-    generateTimeSlots();
+    function showMsg(text, type) {
+      msgEl.textContent = text;
+      msgEl.className = "message " + type;
+      msgEl.style.display = "block";
+      setTimeout(()=>{ msgEl.style.display="none"; }, 5000);
+    }
   </script>
 </body>
 </html>
