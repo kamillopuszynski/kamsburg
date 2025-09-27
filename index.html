@@ -124,8 +124,9 @@
     /************ Firebase imports (CDN) ************/
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
     import { getDatabase, ref, onValue, push, set } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+    import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-functions.js";
 
-    /************ Twój firebaseConfig (z databaseURL) ************/
+    /************ Konfiguracja Firebase ************/
     const firebaseConfig = {
       apiKey: "AIzaSyAOIXtjM9PMFXa0YFZfiDpfXlq_5sKxjv8",
       authDomain: "systemrezerwacji-dbd7c.firebaseapp.com",
@@ -140,16 +141,18 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    /************ Konfiguracja aplikacji ************/
+    // IMPORTANT: region must match function deploy region
+    const functions = getFunctions(app, "europe-west1");
+    const sendReservationEmail = httpsCallable(functions, "sendReservationEmail");
+
+    /************ Ustawienia lokalu ************/
     const TABLES = { 2:2, 4:2, 6:2, 8:2 };
-    const OPENING_HOURS = { start:10, end:22 };     // sloty 10..21
-    const RESERVATION_DURATION = 2;                 // w godzinach
+    const OPENING_HOURS = { start:10, end:22 }; // sloty 10..21
+    const RESERVATION_DURATION = 2;             // godziny
 
     // Stan
     let selectedTime = null;
-    let reservationsCache = [];   // rezerwacje dla aktualnie wybranej daty
-    let currentDate = null;       // YYYY-MM-DD
-    let unsubscribe = null;       // do ewentualnego odpinania onValue (gdybyś rozbudowywał)
+    let reservationsCache = [];
 
     // DOM
     const dateEl = document.getElementById('date');
@@ -160,7 +163,6 @@
     // min data = dziś
     dateEl.min = new Date().toISOString().split('T')[0];
 
-    // Generowanie slotów
     function generateTimeSlots(){
       const cont = document.getElementById('timeSlots');
       cont.innerHTML = '';
@@ -188,10 +190,8 @@
       return !!dateEl.value && Number.isInteger(selectedTime) && !!peopleEl.value;
     }
 
-    // Nasłuch rezerwacji dla danej daty
     function listenForDate(dateStr){
       if(!dateStr) return;
-      currentDate = dateStr;
       const dateRef = ref(db, `reservations/${dateStr}`);
       onValue(dateRef, (snap)=>{
         const val = snap.val();
@@ -201,15 +201,12 @@
       });
     }
 
-    // Sprawdzenie dostępności (Twoja logika: bez „upgrade’u” do większego stolika)
     function checkAvailability(people, dateStr, hour){
       const reservationsForDate = reservationsCache.filter(r => r.date === dateStr);
-      // kategoria stolika
       let tableCategory = 2;
       for (let size of [2,4,6,8]) {
         if (people <= size) { tableCategory = size; break; }
       }
-      // zajęte
       const occupied = new Set();
       reservationsForDate.forEach(r=>{
         const resHour = parseInt(r.hour,10);
@@ -217,7 +214,6 @@
           occupied.add(`${r.tableCategory}_${r.tableNumber}`);
         }
       });
-      // znajdź wolny w tej samej kategorii
       for (let i=1; i<=TABLES[tableCategory]; i++){
         if(!occupied.has(`${tableCategory}_${i}`)){
           return { available:true, tableCategory, tableNumber:i };
@@ -320,7 +316,7 @@
       setTimeout(()=>{ msgEl.style.display = 'none'; }, 5000);
     }
 
-    // Formularz – zapis do RTDB
+    // Formularz – zapis do RTDB + wywołanie funkcji maila
     document.getElementById('reservationForm').addEventListener('submit', async (e)=>{
       e.preventDefault();
 
@@ -337,7 +333,6 @@
         return;
       }
 
-      // ostatnia weryfikacja na aktualnym cache (może się zmienić „tuż przed”)
       const availability = checkAvailability(people, dateStr, hour);
 
       if (availability.available){
@@ -350,11 +345,20 @@
         };
 
         try{
+          // 1) Zapis
           const newRef = push(ref(db, `reservations/${dateStr}`));
           await set(newRef, payload);
 
+          // 2) Mail (callable)
+          try {
+            await sendReservationEmail({ to: email, reservation: payload });
+          } catch (mailErr) {
+            console.error("Email send error:", mailErr);
+            // nie blokujemy UX
+          }
+
           showMessage(
-            `Rezerwacja w KamsBurg potwierdzona! ${firstName} ${lastName}, stolik dla ${people} osób, numer ${availability.tableNumber} na godzinę ${hour}:00. Potwierdzenie wysłano na ${email}`,
+            `Rezerwacja potwierdzona! ${firstName} ${lastName}, stolik dla ${people} osób, nr ${availability.tableNumber} na ${hour}:00. Potwierdzenie wysłano na ${email}`,
             'success'
           );
 
@@ -364,7 +368,6 @@
           selectedTime = null;
           submitBtn.disabled = true;
 
-          // schowaj status + odśwież sloty
           document.getElementById('tableStatusSection').style.display = 'none';
           document.getElementById('tablePlaceholder').style.display = 'block';
           updateTimeSlots();
@@ -388,14 +391,12 @@
       }
     });
 
-    // Reakcje UI
     peopleEl.addEventListener('change', ()=>{
       updateTimeSlots();
       if(selectedTime!==null) showTableStatus();
     });
 
     dateEl.addEventListener('change', ()=>{
-      // podłącz (lub przepnij) nasłuch na nową datę
       listenForDate(dateEl.value);
       updateTimeSlots();
       if(selectedTime!==null) showTableStatus();
