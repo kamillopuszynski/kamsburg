@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Anuluj Rezerwację - KamsBurg</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; background:#f5f5f5; color:#333; line-height:1.6; }
+    .container { max-width:600px; margin:0 auto; padding:20px; }
+    header { background:#2c3e50; color:#fff; padding:2rem 0; text-align:center; margin-bottom:2rem; box-shadow:0 2px 5px rgba(0,0,0,.1); }
+    header h1 { font-size:2.5rem; font-weight:300; letter-spacing:1px; }
+    .cancel-form { background:#fff; padding:2rem; border-radius:8px; box-shadow:0 2px 10px rgba(0,0,0,.1); margin-bottom:2rem; }
+    .form-group { margin-bottom:1.5rem; }
+    label { display:block; margin-bottom:.5rem; font-weight:500; color:#555; }
+    input { width:100%; padding:.75rem; border:2px solid #ddd; border-radius:4px; font-size:1rem; transition:border-color .3s; }
+    input:focus { outline:none; border-color:#3498db; }
+    button { background:#e74c3c; color:#fff; padding:.75rem 2rem; border:none; border-radius:4px; font-size:1rem; cursor:pointer; transition:background .3s; width:100%; margin-top:1rem; }
+    button:hover { background:#c0392b; }
+    button:disabled { background:#bdc3c7; cursor:not-allowed; }
+    .message { padding:1rem; border-radius:4px; margin-top:1rem; display:none; }
+    .message.success { background:#d4edda; color:#155724; border:1px solid #c3e6cb; }
+    .message.error { background:#f8d7da; color:#721c24; border:1px solid #f5c6cb; }
+    .message.info { background:#d1ecf1; color:#0c5460; border:1px solid #bee5eb; }
+    .reservation-details { background:#f8f9fa; padding:1rem; border-radius:4px; margin-top:1rem; border:1px solid #ddd; display:none; }
+    .reservation-details h3 { margin-bottom:0.5rem; color:#2c3e50; }
+    .reservation-details p { margin-bottom:0.3rem; }
+    .back-link { display:block; text-align:center; margin-top:2rem; color:#3498db; text-decoration:none; }
+    .back-link:hover { text-decoration:underline; }
+    .instructions { background:#e3f2fd; padding:1rem; border-radius:4px; margin-bottom:1.5rem; border-left:4px solid #2196f3; }
+    .instructions h3 { margin-bottom:0.5rem; color:#1976d2; }
+    .instructions p { margin-bottom:0; }
+    @media (max-width:600px){
+      .container { padding:10px; }
+      header h1 { font-size:2rem; }
+      .cancel-form { padding:1rem; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>KamsBurg - Anuluj Rezerwację</h1>
+  </header>
+
+  <div class="container">
+    <div class="instructions">
+      <h3>Jak anulować rezerwację?</h3>
+      <p>Wprowadź kod rezerwacji, który otrzymałeś podczas dokonywania rezerwacji. Kod składa się z 6 znaków (litery i cyfry).</p>
+    </div>
+
+    <div class="cancel-form">
+      <form id="cancelReservationForm">
+        <div class="form-group">
+          <label for="reservationCode">Kod rezerwacji:</label>
+          <input type="text" id="reservationCode" placeholder="Wpisz 6-znakowy kod" maxlength="6" required>
+        </div>
+        <button type="submit" id="cancelBtn">Anuluj rezerwację</button>
+      </form>
+
+      <div id="message" class="message"></div>
+      
+      <div id="reservationDetails" class="reservation-details">
+        <h3>Szczegóły rezerwacji:</h3>
+        <p><strong>Imię i nazwisko:</strong> <span id="detailName"></span></p>
+        <p><strong>Liczba osób:</strong> <span id="detailPeople"></span></p>
+        <p><strong>Data:</strong> <span id="detailDate"></span></p>
+        <p><strong>Godzina:</strong> <span id="detailTime"></span></p>
+        <p><strong>Stolik:</strong> <span id="detailTable"></span></p>
+      </div>
+    </div>
+
+    <a href="index.html" class="back-link">Powrót do strony głównej</a>
+  </div>
+
+  <!-- Firebase + logika aplikacji -->
+  <script type="module">
+    /************ Firebase imports (CDN) ************/
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+    import { getDatabase, ref, get, remove } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+
+    /************ Twój firebaseConfig (z databaseURL) ************/
+    const firebaseConfig = {
+      apiKey: "AIzaSyAOIXtjM9PMFXa0YFZfiDpfXlq_5sKxjv8",
+      authDomain: "systemrezerwacji-dbd7c.firebaseapp.com",
+      databaseURL: "https://systemrezerwacji-dbd7c-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "systemrezerwacji-dbd7c",
+      storageBucket: "systemrezerwacji-dbd7c.firebasestorage.app",
+      messagingSenderId: "1018043438907",
+      appId: "1:1018043438907:web:d9b9e9190bd189dc2b491e",
+      measurementId: "G-YXB460ZGR1"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    // DOM
+    const reservationCodeEl = document.getElementById('reservationCode');
+    const cancelBtn = document.getElementById('cancelBtn');
+    const msgEl = document.getElementById('message');
+    const reservationDetailsEl = document.getElementById('reservationDetails');
+    const detailNameEl = document.getElementById('detailName');
+    const detailPeopleEl = document.getElementById('detailPeople');
+    const detailDateEl = document.getElementById('detailDate');
+    const detailTimeEl = document.getElementById('detailTime');
+    const detailTableEl = document.getElementById('detailTable');
+
+    // Formatowanie daty
+    function formatDate(dateStr) {
+      const date = new Date(dateStr);
+      return date.toLocaleDateString('pl-PL', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+      });
+    }
+
+    // Wyświetlanie komunikatów
+    function showMessage(text, type) {
+      msgEl.textContent = text;
+      msgEl.className = `message ${type}`;
+      msgEl.style.display = 'block';
+      
+      // Ukryj komunikat po 5 sekundach
+      setTimeout(() => {
+        msgEl.style.display = 'none';
+      }, 5000);
+    }
+
+    // Wyszukiwanie rezerwacji po kodzie
+    async function findReservationByCode(code) {
+      try {
+        // Sprawdź czy kod istnieje
+        const codeSnapshot = await get(ref(db, `reservationCodes/${code}`));
+        
+        if (!codeSnapshot.exists()) {
+          return null;
+        }
+
+        const { date, reservationId } = codeSnapshot.val();
+        
+        // Pobierz szczegóły rezerwacji
+        const reservationSnapshot = await get(ref(db, `reservations/${date}/${reservationId}`));
+        
+        if (!reservationSnapshot.exists()) {
+          return null;
+        }
+
+        return {
+          id: reservationId,
+          date: date,
+          ...reservationSnapshot.val()
+        };
+      } catch (error) {
+        console.error('Błąd wyszukiwania rezerwacji:', error);
+        return null;
+      }
+    }
+
+    // Wyświetlanie szczegółów rezerwacji
+    function displayReservationDetails(reservation) {
+      detailNameEl.textContent = `${reservation.firstName} ${reservation.lastName}`;
+      detailPeopleEl.textContent = `${reservation.people} osoby`;
+      detailDateEl.textContent = formatDate(reservation.date);
+      detailTimeEl.textContent = `${reservation.hour}:00`;
+      detailTableEl.textContent = `Stolik ${reservation.tableNumber} (${reservation.tableCategory} osób)`;
+      
+      reservationDetailsEl.style.display = 'block';
+    }
+
+    // Ukrywanie szczegółów rezerwacji
+    function hideReservationDetails() {
+      reservationDetailsEl.style.display = 'none';
+    }
+
+    // Obsługa formularza
+    document.getElementById('cancelReservationForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const code = reservationCodeEl.value.trim().toUpperCase();
+      
+      if (!code) {
+        showMessage('Wprowadź kod rezerwacji', 'error');
+        return;
+      }
+
+      // Wyłącz przycisk podczas przetwarzania
+      cancelBtn.disabled = true;
+      cancelBtn.textContent = 'Sprawdzanie...';
+      
+      try {
+        // Znajdź rezerwację
+        const reservation = await findReservationByCode(code);
+        
+        if (!reservation) {
+          showMessage('Nieprawidłowy kod rezerwacji', 'error');
+          hideReservationDetails();
+          return;
+        }
+        
+        // Wyświetl szczegóły rezerwacji
+        displayReservationDetails(reservation);
+        
+        // Pytanie o potwierdzenie
+        if (confirm('Czy na pewno chcesz anulować tę rezerwację?')) {
+          // Usuń rezerwację
+          await remove(ref(db, `reservations/${reservation.date}/${reservation.id}`));
+          
+          // Usuń kod
+          await remove(ref(db, `reservationCodes/${code}`));
+          
+          showMessage('Rezerwacja została pomyślnie anulowana', 'success');
+          hideReservationDetails();
+          
+          // Wyczyść pole
+          reservationCodeEl.value = '';
+        } else {
+          showMessage('Anulowanie rezerwacji zostało przerwane', 'info');
+        }
+      } catch (error) {
+        console.error('Błąd anulowania rezerwacji:', error);
+        showMessage('Wystąpił błąd podczas anulowania rezerwacji. Spróbuj ponownie.', 'error');
+      } finally {
+        // Włącz przycisk z powrotem
+        cancelBtn.disabled = false;
+        cancelBtn.textContent = 'Anuluj rezerwację';
+      }
+    });
+
+    // Automatyczne przekształcanie kodu na wielkie litery
+    reservationCodeEl.addEventListener('input', function() {
+      this.value = this.value.toUpperCase();
+    });
+  </script>
+</body>
+</html>
