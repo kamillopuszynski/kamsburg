@@ -75,9 +75,9 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-    import { getDatabase, ref, push, set } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+    import { getDatabase, ref, push, set, onValue } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
-    // Firebase config (your project)
+    // Firebase config
     const firebaseConfig = {
       apiKey: "AIzaSyAOIXtjM9PMFXa0YFZfiDpfXlq_5sKxjv8",
       authDomain: "systemrezerwacji-dbd7c.firebaseapp.com",
@@ -91,37 +91,108 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    // Apps Script Web App URL (your deployed endpoint)
+    // Apps Script email webhook
     const EMAIL_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbx7qn3F98YAr1spnIVpNc9v_eFvmXLz4MwNyyDplqClMJqN-UrS933slj5wBIxIancg/exec";
 
-    // Simple slot picker
+    // Helpers
     const OPENING_HOURS = { start: 10, end: 22 };
     let selectedHour = null;
+    let cacheForDay = [];
 
     const timeSlotsEl = document.getElementById('timeSlots');
     const submitBtn = document.getElementById('submitBtn');
     const msgEl = document.getElementById('message');
     const dateEl = document.getElementById('date');
+    const peopleEl = document.getElementById('people');
 
-    // min date = today
     dateEl.min = new Date().toISOString().split('T')[0];
 
-    // generate time slots
+    // Generate time slots
     for (let h = OPENING_HOURS.start; h < OPENING_HOURS.end; h++) {
       const div = document.createElement('div');
       div.textContent = `${h}:00`;
       div.className = 'time-slot';
       div.dataset.hour = h;
       div.onclick = () => {
+        if (div.classList.contains('unavailable')) return;
         document.querySelectorAll('.time-slot').forEach(s=>s.classList.remove('selected'));
         div.classList.add('selected');
         selectedHour = h;
-        submitBtn.disabled = false;
+        submitBtn.disabled = !canSubmit();
       };
       timeSlotsEl.appendChild(div);
     }
 
-    // handle submit
+    // Listen to selected date reservations
+    dateEl.addEventListener('change', () => {
+      selectedHour = null;
+      submitBtn.disabled = !canSubmit();
+
+      if (!dateEl.value) return;
+      const dayRef = ref(db, `reservations/${dateEl.value}`);
+      onValue(dayRef, snap => {
+        const val = snap.val() || {};
+        cacheForDay = Object.values(val);
+        updateSlotAvailability();
+      });
+    });
+
+    peopleEl.addEventListener('change', updateSlotAvailability);
+
+    function canSubmit() {
+      return !!dateEl.value && !!peopleEl.value && Number.isInteger(selectedHour);
+    }
+
+    function updateSlotAvailability() {
+      const people = parseInt(peopleEl.value || '0', 10);
+      const dateStr = dateEl.value;
+      document.querySelectorAll('.time-slot').forEach(slot => {
+        slot.classList.remove('unavailable');
+        const hour = parseInt(slot.dataset.hour, 10);
+
+        // block past hours of today
+        if (dateStr) {
+          const now = new Date();
+          const today = now.toISOString().split('T')[0];
+          if (dateStr === today && hour <= now.getHours()) {
+            slot.classList.add('unavailable');
+            return;
+          }
+        }
+        if (!people || !dateStr) return;
+
+        const unavailable = isHourUnavailable(people, dateStr, hour);
+        if (unavailable) slot.classList.add('unavailable');
+      });
+    }
+
+    function isHourUnavailable(people, dateStr, hour) {
+      const RES_DURATION = 2;
+      const TABLES = {2:2,4:2,6:2,8:2};
+
+      // Choose table category
+      let cat = 2;
+      for (const s of [2,4,6,8]) { if (people <= s) { cat = s; break; } }
+
+      // Occupied set (ignore cancelled)
+      const occ = new Set();
+      cacheForDay
+        .filter(r => r.status !== 'cancelled')
+        .forEach(r => {
+          const rh = parseInt(r.hour,10);
+          if (Math.abs(rh - hour) < RES_DURATION) {
+            occ.add(`${r.tableCategory}_${r.tableNumber}`);
+          }
+        });
+
+      // Is any table free in that category?
+      for (let i=1; i<=TABLES[cat]; i++) {
+        if (!occ.has(`${cat}_${i}`)) return false; // found free → hour is available
+      }
+      return true; // none free → unavailable
+    }
+
+    // Submit
     document.getElementById('reservationForm').addEventListener('submit', async (e)=>{
       e.preventDefault();
 
@@ -129,34 +200,68 @@
       const lastName  = document.getElementById('lastName').value.trim();
       const phone     = document.getElementById('phone').value.trim();
       const email     = document.getElementById('email').value.trim();
-      const people    = parseInt(document.getElementById('people').value, 10);
+      const people    = parseInt(peopleEl.value, 10);
       const date      = dateEl.value;
+      const hour      = selectedHour;
 
-      if (!firstName || !lastName || !phone || !email || !people || !date || selectedHour===null) {
+      if (!firstName || !lastName || !phone || !email || !people || !date || hour===null) {
         return showMsg("Proszę wypełnić wszystkie pola", "error");
       }
 
-      const payload = {
-        firstName, lastName, phone, email,
-        people, date, hour: selectedHour,
-        timestamp: new Date().toISOString()
-      };
+      // Pick table (simple: first free in that category)
+      const RES_DURATION = 2;
+      const TABLES = {2:2,4:2,6:2,8:2};
+      let cat = 2; for (const s of [2,4,6,8]) { if (people <= s) { cat = s; break; } }
+
+      const occ = new Set();
+      cacheForDay
+        .filter(r => r.status !== 'cancelled')
+        .forEach(r => {
+          const rh = parseInt(r.hour,10);
+          if (Math.abs(rh - hour) < RES_DURATION) {
+            occ.add(`${r.tableCategory}_${r.tableNumber}`);
+          }
+        });
+
+      let tableNumber = null;
+      for (let i=1;i<=TABLES[cat];i++) {
+        if (!occ.has(`${cat}_${i}`)) { tableNumber = i; break; }
+      }
+      if (!tableNumber) return showMsg("Ta godzina jest już zajęta.", "error");
 
       try {
-        // 1) Save to Realtime Database
+        // Create node key first
         const newRef = push(ref(db, `reservations/${date}`));
+        const id = newRef.key;
+        const cancelCode = String(Math.floor(100000 + Math.random()*900000)); // 6-digit
+
+        // Build manage URL (assumes reservation.html in same folder)
+        const base = location.origin + location.pathname.replace(/[^/]+$/, '');
+        const manageUrl = `${base}reservation.html?id=${encodeURIComponent(id)}&date=${encodeURIComponent(date)}`;
+
+        const payload = {
+          id,
+          status: "active",
+          cancelCode,
+          firstName, lastName, phone, email,
+          people, date, hour,
+          tableCategory: cat,
+          tableNumber,
+          timestamp: new Date().toISOString()
+        };
+
+        // Save reservation
         await set(newRef, payload);
 
-        // 2) Send confirmation email via Apps Script
-        // We don't need the response → use no-cors to avoid CORS errors
+        // Send confirmation email with link + code
         await fetch(EMAIL_WEBHOOK_URL, {
           method: "POST",
           mode: "no-cors",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ to: email, reservation: payload })
+          body: JSON.stringify({ to: email, reservation: payload, manageUrl })
         });
 
-        showMsg(`Rezerwacja potwierdzona! Email wysłany na ${email}`, "success");
+        showMsg(`Rezerwacja potwierdzona! Sprawdź maila: ${email}`, "success");
         e.target.reset();
         document.querySelectorAll('.time-slot').forEach(s=>s.classList.remove('selected'));
         selectedHour = null;
