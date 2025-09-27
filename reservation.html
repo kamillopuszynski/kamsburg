@@ -1,140 +1,150 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-  <meta charset="UTF-8"/>
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>KamsBurg — Moje rezerwacje</title>
+  <title>KamsBurg – Szczegóły rezerwacji</title>
   <style>
-    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
-         background:#f5f5f5;margin:0;color:#333}
-    .container{max-width:800px;margin:0 auto;padding:20px}
-    header{background:#2c3e50;color:#fff;padding:1rem;text-align:center;
-           box-shadow:0 2px 5px rgba(0,0,0,.1)}
-    h1{margin:0;font-weight:500}
-    .card{background:#fff;padding:1.5rem;border-radius:10px;
-          box-shadow:0 2px 10px rgba(0,0,0,.1);margin-top:20px}
-    label{display:block;font-weight:600;margin-bottom:5px}
-    input{width:100%;padding:.7rem;border:1px solid #ccc;border-radius:6px;
-          margin-bottom:1rem;font-size:1rem}
-    button{padding:.7rem 1.2rem;border:none;border-radius:6px;
-           background:#3498db;color:#fff;font-weight:600;cursor:pointer}
-    button:hover{background:#2980b9}
-    button:disabled{background:#ccc;cursor:not-allowed}
-    .reservation{border:1px solid #ddd;border-radius:8px;padding:1rem;margin-bottom:1rem}
-    .reservation h3{margin:.2rem 0}
-    .reservation small{color:#666}
-    .cancel-btn{margin-top:.5rem;background:#e74c3c}
-    .cancel-btn:hover{background:#c0392b}
-    .msg{margin-top:1rem;padding:1rem;border-radius:8px;display:none}
-    .msg.success{background:#d4edda;color:#155724}
-    .msg.error{background:#f8d7da;color:#721c24}
+    body { font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; background:#f5f5f5; color:#333; }
+    .container { max-width:700px; margin:40px auto; background:#fff; padding:24px; border-radius:10px; box-shadow:0 4px 14px rgba(0,0,0,.08); }
+    h1 { margin:0 0 16px; font-weight:500; }
+    .row { margin:10px 0; }
+    .label { color:#666; font-size:.95rem; }
+    .val { font-size:1.05rem; font-weight:600; }
+    .status { display:inline-block; padding:6px 10px; border-radius:999px; font-size:.9rem; }
+    .active { background:#e8f5e9; color:#2e7d32; }
+    .cancelled { background:#ffebee; color:#c62828; }
+    .actions { margin-top:18px; display:flex; gap:12px; }
+    button { padding:.7rem 1.2rem; border:none; border-radius:6px; cursor:pointer; }
+    .danger { background:#e53935; color:#fff; }
+    .secondary { background:#eceff1; }
+    #msg { margin-top:14px; color:#2e7d32; display:none; }
+    #err { margin-top:14px; color:#c62828; display:none; }
+    .codeBox { margin-top:10px; display:none; }
+    input[type="text"] { padding:.6rem; border:2px solid #ddd; border-radius:6px; width:160px; letter-spacing:3px; text-align:center; font-weight:600; }
   </style>
 </head>
 <body>
-<header>
-  <h1>Sprawdź swoje rezerwacje</h1>
-</header>
-<main class="container">
-  <div class="card">
-    <label for="email">Podaj swój e-mail:</label>
-    <input type="email" id="email" placeholder="twoj@email.pl" required/>
-    <button id="searchBtn">🔎 Pokaż rezerwacje</button>
-    <div id="message" class="msg"></div>
+  <div class="container">
+    <h1>Twoja rezerwacja</h1>
+    <div class="row"><span class="label">Status:</span> <span id="status" class="status">…</span></div>
+    <div class="row"><span class="label">Imię i nazwisko:</span> <span class="val" id="name">…</span></div>
+    <div class="row"><span class="label">Email:</span> <span class="val" id="email">…</span></div>
+    <div class="row"><span class="label">Telefon:</span> <span class="val" id="phone">…</span></div>
+    <div class="row"><span class="label">Data i godzina:</span> <span class="val" id="when">…</span></div>
+    <div class="row"><span class="label">Liczba osób / stolik:</span> <span class="val" id="table">…</span></div>
+
+    <div class="actions">
+      <button class="danger" id="cancelBtn">Anuluj rezerwację</button>
+      <button class="secondary" onclick="location.href='index.html'">Nowa rezerwacja</button>
+    </div>
+
+    <div class="codeBox" id="codeBox">
+      <p>Wpisz 6-cyfrowy kod potwierdzenia anulowania (wysłany w mailu):</p>
+      <input type="text" id="code" maxlength="6" placeholder="______">
+      <button id="confirmCancel">Potwierdź</button>
+    </div>
+
+    <div id="msg">Rezerwacja została anulowana.</div>
+    <div id="err"></div>
   </div>
 
-  <div class="card" id="results" style="display:none">
-    <h2>Twoje rezerwacje</h2>
-    <div id="list"></div>
-  </div>
-</main>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+    import { getDatabase, ref, get, update } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-  import { getDatabase, ref, get, remove } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+    // same Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyAOIXtjM9PMFXa0YFZfiDpfXlq_5sKxjv8",
+      authDomain: "systemrezerwacji-dbd7c.firebaseapp.com",
+      databaseURL: "https://systemrezerwacji-dbd7c-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "systemrezerwacji-dbd7c",
+      storageBucket: "systemrezerwacji-dbd7c.firebasestorage.app",
+      messagingSenderId: "1018043438907",
+      appId: "1:1018043438907:web:d9b9e9190bd189dc2b491e"
+    };
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyAOIXtjM9PMFXa0YFZfiDpfXlq_5sKxjv8",
-    authDomain: "systemrezerwacji-dbd7c.firebaseapp.com",
-    databaseURL: "https://systemrezerwacji-dbd7c-default-rtdb.europe-west1.firebasedatabase.app",
-    projectId: "systemrezerwacji-dbd7c",
-    storageBucket: "systemrezerwacji-dbd7c.firebasestorage.app",
-    messagingSenderId: "1018043438907",
-    appId: "1:1018043438907:web:d9b9e9190bd189dc2b491e",
-    measurementId: "G-YXB460ZGR1"
-  };
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
 
-  const app = initializeApp(firebaseConfig);
-  const db = getDatabase(app);
+    // read params
+    const params = new URLSearchParams(location.search);
+    const id = params.get("id");
+    const date = params.get("date");
 
-  const emailEl = document.getElementById("email");
-  const btn = document.getElementById("searchBtn");
-  const msg = document.getElementById("message");
-  const list = document.getElementById("list");
-  const results = document.getElementById("results");
+    const ui = {
+      status: document.getElementById('status'),
+      name: document.getElementById('name'),
+      email: document.getElementById('email'),
+      phone: document.getElementById('phone'),
+      when: document.getElementById('when'),
+      table: document.getElementById('table'),
+      cancelBtn: document.getElementById('cancelBtn'),
+      codeBox: document.getElementById('codeBox'),
+      code: document.getElementById('code'),
+      confirmCancel: document.getElementById('confirmCancel'),
+      msg: document.getElementById('msg'),
+      err: document.getElementById('err'),
+    };
 
-  btn.addEventListener("click", async ()=>{
-    const email = emailEl.value.trim().toLowerCase();
-    if(!email){ showMsg("Podaj e-mail.","error"); return; }
+    if (!id || !date) {
+      ui.err.textContent = "Brak identyfikatora rezerwacji.";
+      ui.err.style.display = "block";
+      ui.cancelBtn.disabled = true;
+    } else {
+      const rref = ref(db, `reservations/${date}/${id}`);
+      const snap = await get(rref);
+      if (!snap.exists()) {
+        ui.err.textContent = "Nie znaleziono rezerwacji.";
+        ui.err.style.display = "block";
+        ui.cancelBtn.disabled = true;
+      } else {
+        const r = snap.val();
 
-    btn.disabled=true; showMsg("Szukam rezerwacji...","info");
-    list.innerHTML=""; results.style.display="none";
+        render(r);
 
-    try{
-      const snap = await get(ref(db,"reservations"));
-      if(!snap.exists()){ showMsg("Brak rezerwacji w systemie.","error"); btn.disabled=false; return; }
-      const all = snap.val();
-      let found = [];
+        ui.cancelBtn.addEventListener('click', ()=>{
+          ui.codeBox.style.display = 'block';
+          ui.err.style.display = 'none';
+          ui.msg.style.display = 'none';
+        });
 
-      for(const date of Object.keys(all)){
-        for(const id of Object.keys(all[date])){
-          const r = all[date][id];
-          if((r.email||"").toLowerCase()===email){
-            found.push({id,date,...r});
+        ui.confirmCancel.addEventListener('click', async ()=>{
+          const code = (ui.code.value || '').trim();
+          if (code.length !== 6) {
+            ui.err.textContent = "Kod musi mieć 6 cyfr.";
+            ui.err.style.display = "block";
+            return;
           }
-        }
-      }
-
-      if(found.length===0){
-        showMsg("Nie znaleziono rezerwacji dla podanego e-maila.","error");
-      }else{
-        results.style.display="block"; msg.style.display="none";
-        list.innerHTML = found.map(r=>`
-          <div class="reservation">
-            <h3>${r.date} • ${r.hour}:00</h3>
-            <small>${r.firstName} ${r.lastName}, ${r.people} osób • stolik ${r.tableNumber}</small><br/>
-            <small>Tel: ${r.phone}, Email: ${r.email}</small><br/>
-            <button class="cancel-btn" data-date="${r.date}" data-id="${r.id}">🗑️ Anuluj</button>
-          </div>
-        `).join("");
-      }
-    }catch(e){
-      console.error(e);
-      showMsg("Błąd pobierania danych.","error");
-    }
-    btn.disabled=false;
-  });
-
-  list.addEventListener("click", async (e)=>{
-    if(e.target.classList.contains("cancel-btn")){
-      const date = e.target.dataset.date;
-      const id   = e.target.dataset.id;
-      if(!confirm("Na pewno anulować tę rezerwację?")) return;
-      try{
-        await remove(ref(db,`reservations/${date}/${id}`));
-        e.target.parentElement.remove();
-        showMsg("Rezerwacja anulowana.","success");
-      }catch(err){
-        console.error(err);
-        showMsg("Nie udało się anulować.","error");
+          if (code !== r.cancelCode) {
+            ui.err.textContent = "Nieprawidłowy kod.";
+            ui.err.style.display = "block";
+            return;
+          }
+          try {
+            await update(rref, { status: "cancelled", cancelledAt: new Date().toISOString() });
+            ui.msg.style.display = "block";
+            ui.err.style.display = "none";
+            const updated = { ...r, status: "cancelled" };
+            render(updated);
+          } catch (e) {
+            ui.err.textContent = "Nie udało się anulować. Spróbuj ponownie.";
+            ui.err.style.display = "block";
+          }
+        });
       }
     }
-  });
 
-  function showMsg(text,type){
-    msg.textContent=text;
-    msg.className="msg "+type;
-    msg.style.display="block";
-  }
-</script>
+    function render(r) {
+      ui.status.textContent = r.status === 'cancelled' ? 'Anulowana' : 'Aktywna';
+      ui.status.className = 'status ' + (r.status === 'cancelled' ? 'cancelled' : 'active');
+      ui.name.textContent = `${r.firstName || ''} ${r.lastName || ''}`.trim();
+      ui.email.textContent = r.email || '-';
+      ui.phone.textContent = r.phone || '-';
+      ui.when.textContent = `${r.date} ${String(r.hour).padStart(2,'0')}:00`;
+      ui.table.textContent = `${r.people}-os. / stolik nr ${r.tableNumber} (${r.tableCategory}-os.)`;
+      ui.cancelBtn.disabled = r.status === 'cancelled';
+    }
+  </script>
 </body>
 </html>
