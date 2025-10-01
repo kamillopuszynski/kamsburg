@@ -4,56 +4,504 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>KamsBurg – Szczegóły rezerwacji</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+  
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
   <style>
-    body { font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; background:#f5f5f5; color:#333; }
-    .container { max-width:700px; margin:40px auto; background:#fff; padding:24px; border-radius:10px; box-shadow:0 4px 14px rgba(0,0,0,.08); }
-    h1 { margin:0 0 16px; font-weight:500; }
-    .row { margin:10px 0; }
-    .label { color:#666; font-size:.95rem; }
-    .val { font-size:1.05rem; font-weight:600; }
-    .status { display:inline-block; padding:6px 10px; border-radius:999px; font-size:.9rem; }
-    .active { background:#e8f5e9; color:#2e7d32; }
-    .cancelled { background:#ffebee; color:#c62828; }
-    .actions { margin-top:18px; display:flex; gap:12px; }
-    button { padding:.7rem 1.2rem; border:none; border-radius:6px; cursor:pointer; }
-    .danger { background:#e53935; color:#fff; }
-    .secondary { background:#eceff1; }
-    #msg { margin-top:14px; color:#2e7d32; display:none; }
-    #err { margin-top:14px; color:#c62828; display:none; }
-    .codeBox { margin-top:10px; display:none; }
-    input[type="text"] { padding:.6rem; border:2px solid #ddd; border-radius:6px; width:160px; letter-spacing:3px; text-align:center; font-weight:600; }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary: #2c3e50;
+      --secondary: #e74c3c;
+      --accent: #f39c12;
+      --light: #ecf0f1;
+      --dark: #1a1a1a;
+      --gray: #95a5a6;
+      --success: #27ae60;
+      --danger: #e74c3c;
+    }
+
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      color: #333;
+    }
+
+    /* Header */
+    header {
+      background: white;
+      padding: 2rem 0;
+      text-align: center;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 3rem;
+      color: var(--primary);
+      margin-bottom: 0.5rem;
+    }
+
+    .tagline {
+      color: var(--gray);
+      font-size: 1.1rem;
+    }
+
+    /* Main Container */
+    .container {
+      max-width: 800px;
+      margin: 3rem auto;
+      padding: 0 1rem;
+    }
+
+    /* Reservation Card */
+    .reservation-card {
+      background: white;
+      border-radius: 15px;
+      padding: 3rem;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      animation: fadeIn 0.6s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem;
+      color: var(--primary);
+      margin-bottom: 0.5rem;
+      text-align: center;
+    }
+
+    .section-subtitle {
+      text-align: center;
+      color: var(--gray);
+      margin-bottom: 2.5rem;
+    }
+
+    /* Status Badge */
+    .status-container {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.8rem 1.5rem;
+      border-radius: 50px;
+      font-size: 1rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .status-badge.active {
+      background: #e8f5e9;
+      color: #2e7d32;
+    }
+
+    .status-badge.cancelled {
+      background: #ffebee;
+      color: #c62828;
+    }
+
+    /* Details Grid */
+    .details-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .detail-item {
+      background: #f8f9fa;
+      padding: 1.5rem;
+      border-radius: 12px;
+      border: 1px solid #e9ecef;
+    }
+
+    .detail-label {
+      font-size: 0.9rem;
+      color: var(--gray);
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+    }
+
+    .detail-value {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--primary);
+    }
+
+    /* Code Display */
+    .code-section {
+      background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+      border-radius: 12px;
+      padding: 2rem;
+      margin: 2rem 0;
+      text-align: center;
+      border: 2px dashed var(--accent);
+    }
+
+    .code-title {
+      font-size: 1.1rem;
+      color: var(--gray);
+      margin-bottom: 1rem;
+    }
+
+    .code-display {
+      font-family: 'Courier New', monospace;
+      font-size: 2rem;
+      font-weight: bold;
+      color: var(--accent);
+      background: white;
+      padding: 1rem 2rem;
+      border-radius: 8px;
+      display: inline-block;
+      letter-spacing: 3px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    /* Actions */
+    .actions {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      margin-top: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 1rem 2rem;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .btn-danger {
+      background: var(--danger);
+      color: white;
+    }
+
+    .btn-danger:hover:not(:disabled) {
+      background: #c0392b;
+      transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+      background: var(--gray);
+      color: white;
+    }
+
+    .btn-secondary:hover {
+      background: #7f8c8d;
+      transform: translateY(-2px);
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* Cancel Modal */
+    .cancel-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+    }
+
+    .cancel-modal.show {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-content {
+      background: white;
+      border-radius: 15px;
+      padding: 2.5rem;
+      max-width: 500px;
+      width: 90%;
+      animation: slideUp 0.3s ease-out;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(50px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .modal-header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .modal-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.8rem;
+      color: var(--primary);
+      margin-bottom: 0.5rem;
+    }
+
+    .modal-subtitle {
+      color: var(--gray);
+    }
+
+    .code-input-group {
+      margin: 2rem 0;
+    }
+
+    .code-input-group label {
+      display: block;
+      margin-bottom: 1rem;
+      font-weight: 500;
+      color: var(--primary);
+    }
+
+    .code-input {
+      width: 100%;
+      padding: 1rem;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 1.2rem;
+      text-align: center;
+      letter-spacing: 5px;
+      font-weight: bold;
+      transition: all 0.3s ease;
+    }
+
+    .code-input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(243, 156, 18, 0.1);
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+    }
+
+    /* Messages */
+    .message {
+      padding: 1rem;
+      border-radius: 8px;
+      margin-top: 1rem;
+      display: none;
+      animation: slideIn 0.3s ease-out;
+      text-align: center;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .message.success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+
+    .message.error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+
+    /* Loading */
+    .loading {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid #f3f3f3;
+      border-top: 2px solid var(--primary);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-right: 8px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .logo {
+        font-size: 2rem;
+      }
+
+      .reservation-card {
+        padding: 2rem 1.5rem;
+      }
+
+      .section-title {
+        font-size: 1.5rem;
+      }
+
+      .details-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .actions {
+        flex-direction: column;
+      }
+
+      .modal-actions {
+        flex-direction: column;
+      }
+    }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Twoja rezerwacja</h1>
-    <div class="row"><span class="label">Status:</span> <span id="status" class="status">…</span></div>
-    <div class="row"><span class="label">Imię i nazwisko:</span> <span class="val" id="name">…</span></div>
-    <div class="row"><span class="label">Email:</span> <span class="val" id="email">…</span></div>
-    <div class="row"><span class="label">Telefon:</span> <span class="val" id="phone">…</span></div>
-    <div class="row"><span class="label">Data i godzina:</span> <span class="val" id="when">…</span></div>
-    <div class="row"><span class="label">Liczba osób / stolik:</span> <span class="val" id="table">…</span></div>
+  <!-- Header -->
+  <header>
+    <div class="logo">KamsBurg</div>
+    <div class="tagline">Luksusowa restauracja • wyjątkowe smaki</div>
+  </header>
 
-    <div class="actions">
-      <button class="danger" id="cancelBtn">Anuluj rezerwację</button>
-      <button class="secondary" onclick="location.href='index.html'">Nowa rezerwacja</button>
+  <!-- Main Content -->
+  <main class="container">
+    <div class="reservation-card">
+      <h1 class="section-title">Szczegóły rezerwacji</h1>
+      <p class="section-subtitle">Zarządzaj swoją rezerwacją</p>
+      
+      <!-- Status -->
+      <div class="status-container">
+        <div id="status" class="status-badge">
+          <i class="fas fa-clock"></i>
+          <span>Ładowanie...</span>
+        </div>
+      </div>
+
+      <!-- Details Grid -->
+      <div class="details-grid">
+        <div class="detail-item">
+          <div class="detail-label">Imię i nazwisko</div>
+          <div class="detail-value" id="name">Ładowanie...</div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-label">Email</div>
+          <div class="detail-value" id="email">Ładowanie...</div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-label">Telefon</div>
+          <div class="detail-value" id="phone">Ładowanie...</div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-label">Data i godzina</div>
+          <div class="detail-value" id="when">Ładowanie...</div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-label">Liczba osób</div>
+          <div class="detail-value" id="people">Ładowanie...</div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-label">Stolik</div>
+          <div class="detail-value" id="table">Ładowanie...</div>
+        </div>
+      </div>
+
+      <!-- Reservation Code -->
+      <div class="code-section">
+        <div class="code-title">Twój kod rezerwacji</div>
+        <div class="code-display" id="reservationCode">--------</div>
+      </div>
+
+      <!-- Actions -->
+      <div class="actions">
+        <button class="btn btn-danger" id="cancelBtn">
+          <i class="fas fa-times"></i> Anuluj rezerwację
+        </button>
+        <button class="btn btn-secondary" onclick="location.href='index.html'">
+          <i class="fas fa-plus"></i> Nowa rezerwacja
+        </button>
+      </div>
+
+      <!-- Messages -->
+      <div id="msg" class="message success">
+        <i class="fas fa-check-circle"></i> Rezerwacja została anulowana.
+      </div>
+      <div id="err" class="message error"></div>
     </div>
+  </main>
 
-    <div class="codeBox" id="codeBox">
-      <p>Wpisz 6-cyfrowy kod potwierdzenia anulowania (wysłany w mailu):</p>
-      <input type="text" id="code" maxlength="6" placeholder="______">
-      <button id="confirmCancel">Potwierdź</button>
+  <!-- Cancel Modal -->
+  <div class="cancel-modal" id="cancelModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title">Anuluj rezerwację</h2>
+        <p class="modal-subtitle">Wpisz kod potwierdzenia anulowania</p>
+      </div>
+      
+      <div class="code-input-group">
+        <label for="code">6-cyfrowy kod (wysłany w mailu):</label>
+        <input type="text" id="code" class="code-input" maxlength="6" placeholder="------">
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn btn-danger" id="confirmCancel">
+          <i class="fas fa-check"></i> Potwierdź anulowanie
+        </button>
+        <button class="btn btn-secondary" onclick="closeModal()">
+          <i class="fas fa-times"></i> Anuluj
+        </button>
+      </div>
+
+      <div id="modalErr" class="message error"></div>
     </div>
-
-    <div id="msg">Rezerwacja została anulowana.</div>
-    <div id="err"></div>
   </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
     import { getDatabase, ref, get, update } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
-    // same Firebase config
+    // Firebase config
     const firebaseConfig = {
       apiKey: "AIzaSyAOIXtjM9PMFXa0YFZfiDpfXlq_5sKxjv8",
       authDomain: "systemrezerwacji-dbd7c.firebaseapp.com",
@@ -67,84 +515,170 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    // read params
+    // Read params
     const params = new URLSearchParams(location.search);
     const id = params.get("id");
     const date = params.get("date");
 
+    // UI elements
     const ui = {
       status: document.getElementById('status'),
       name: document.getElementById('name'),
       email: document.getElementById('email'),
       phone: document.getElementById('phone'),
       when: document.getElementById('when'),
+      people: document.getElementById('people'),
       table: document.getElementById('table'),
+      reservationCode: document.getElementById('reservationCode'),
       cancelBtn: document.getElementById('cancelBtn'),
-      codeBox: document.getElementById('codeBox'),
+      cancelModal: document.getElementById('cancelModal'),
       code: document.getElementById('code'),
       confirmCancel: document.getElementById('confirmCancel'),
       msg: document.getElementById('msg'),
       err: document.getElementById('err'),
+      modalErr: document.getElementById('modalErr'),
     };
 
-    if (!id || !date) {
-      ui.err.textContent = "Brak identyfikatora rezerwacji.";
-      ui.err.style.display = "block";
-      ui.cancelBtn.disabled = true;
-    } else {
-      const rref = ref(db, `reservations/${date}/${id}`);
-      const snap = await get(rref);
-      if (!snap.exists()) {
-        ui.err.textContent = "Nie znaleziono rezerwacji.";
-        ui.err.style.display = "block";
+    let reservationData = null;
+
+    // Load reservation
+    async function loadReservation() {
+      if (!id || !date) {
+        showError("Brak identyfikatora rezerwacji.");
         ui.cancelBtn.disabled = true;
-      } else {
-        const r = snap.val();
+        return;
+      }
 
-        render(r);
+      try {
+        const rref = ref(db, `reservations/${date}/${id}`);
+        const snap = await get(rref);
+        
+        if (!snap.exists()) {
+          showError("Nie znaleziono rezerwacji.");
+          ui.cancelBtn.disabled = true;
+          return;
+        }
 
-        ui.cancelBtn.addEventListener('click', ()=>{
-          ui.codeBox.style.display = 'block';
-          ui.err.style.display = 'none';
-          ui.msg.style.display = 'none';
-        });
-
-        ui.confirmCancel.addEventListener('click', async ()=>{
-          const code = (ui.code.value || '').trim();
-          if (code.length !== 6) {
-            ui.err.textContent = "Kod musi mieć 6 cyfr.";
-            ui.err.style.display = "block";
-            return;
-          }
-          if (code !== r.cancelCode) {
-            ui.err.textContent = "Nieprawidłowy kod.";
-            ui.err.style.display = "block";
-            return;
-          }
-          try {
-            await update(rref, { status: "cancelled", cancelledAt: new Date().toISOString() });
-            ui.msg.style.display = "block";
-            ui.err.style.display = "none";
-            const updated = { ...r, status: "cancelled" };
-            render(updated);
-          } catch (e) {
-            ui.err.textContent = "Nie udało się anulować. Spróbuj ponownie.";
-            ui.err.style.display = "block";
-          }
-        });
+        reservationData = snap.val();
+        render(reservationData);
+        setupEventListeners();
+      } catch (error) {
+        showError("Błąd ładowania rezerwacji. Spróbuj ponownie.");
+        console.error('Error loading reservation:', error);
       }
     }
 
     function render(r) {
-      ui.status.textContent = r.status === 'cancelled' ? 'Anulowana' : 'Aktywna';
-      ui.status.className = 'status ' + (r.status === 'cancelled' ? 'cancelled' : 'active');
-      ui.name.textContent = `${r.firstName || ''} ${r.lastName || ''}`.trim();
-      ui.email.textContent = r.email || '-';
-      ui.phone.textContent = r.phone || '-';
+      // Update status
+      const statusEl = ui.status;
+      if (r.status === 'cancelled') {
+        statusEl.className = 'status-badge cancelled';
+        statusEl.innerHTML = '<i class="fas fa-times-circle"></i><span>Anulowana</span>';
+      } else {
+        statusEl.className = 'status-badge active';
+        statusEl.innerHTML = '<i class="fas fa-check-circle"></i><span>Aktywna</span>';
+      }
+
+      // Update details
+      ui.name.textContent = `${r.firstName || ''} ${r.lastName || ''}`.trim() || '---';
+      ui.email.textContent = r.email || '---';
+      ui.phone.textContent = r.phone || '---';
       ui.when.textContent = `${r.date} ${String(r.hour).padStart(2,'0')}:00`;
-      ui.table.textContent = `${r.people}-os. / stolik nr ${r.tableNumber} (${r.tableCategory}-os.)`;
+      ui.people.textContent = `${r.people} osoby`;
+      ui.table.textContent = `Stolik nr ${r.tableNumber} (${r.tableCategory}-os.)`;
+      ui.reservationCode.textContent = r.reservationCode || '--------';
+
+      // Update cancel button
       ui.cancelBtn.disabled = r.status === 'cancelled';
     }
+
+    function setupEventListeners() {
+      ui.cancelBtn.addEventListener('click', () => {
+        ui.cancelModal.classList.add('show');
+        ui.code.value = '';
+        ui.modalErr.style.display = 'none';
+      });
+
+      ui.confirmCancel.addEventListener('click', confirmCancel);
+
+      // Close modal on outside click
+      ui.cancelModal.addEventListener('click', (e) => {
+        if (e.target === ui.cancelModal) {
+          closeModal();
+        }
+      });
+
+      // Auto-format code input
+      ui.code.addEventListener('input', (e) => {
+        e.target.value = e.target.value.replace(/[^0-9]/g, '').slice(0, 6);
+      });
+    }
+
+    async function confirmCancel() {
+      const code = (ui.code.value || '').trim();
+      
+      if (code.length !== 6) {
+        showModalError("Kod musi mieć 6 cyfr.");
+        return;
+      }
+
+      if (code !== reservationData.cancelCode) {
+        showModalError("Nieprawidłowy kod.");
+        return;
+      }
+
+      try {
+        ui.confirmCancel.disabled = true;
+        ui.confirmCancel.innerHTML = '<span class="loading"></span>Anulowanie...';
+
+        const rref = ref(db, `reservations/${date}/${id}`);
+        await update(rref, { 
+          status: "cancelled", 
+          cancelledAt: new Date().toISOString() 
+        });
+
+        closeModal();
+        showSuccess("Rezerwacja została anulowana.");
+        
+        // Update UI
+        const updated = { ...reservationData, status: "cancelled" };
+        reservationData = updated;
+        render(updated);
+
+      } catch (error) {
+        showModalError("Nie udało się anulować. Spróbuj ponownie.");
+        console.error('Error cancelling reservation:', error);
+      } finally {
+        ui.confirmCancel.disabled = false;
+        ui.confirmCancel.innerHTML = '<i class="fas fa-check"></i> Potwierdź anulowanie';
+      }
+    }
+
+    function closeModal() {
+      ui.cancelModal.classList.remove('show');
+      ui.code.value = '';
+      ui.modalErr.style.display = 'none';
+    }
+
+    function showError(message) {
+      ui.err.textContent = message;
+      ui.err.style.display = 'block';
+      ui.msg.style.display = 'none';
+    }
+
+    function showSuccess(message) {
+      ui.msg.textContent = message;
+      ui.msg.style.display = 'block';
+      ui.err.style.display = 'none';
+    }
+
+    function showModalError(message) {
+      ui.modalErr.textContent = message;
+      ui.modalErr.style.display = 'block';
+    }
+
+    // Initialize
+    loadReservation();
   </script>
 </body>
 </html>
