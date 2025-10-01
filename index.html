@@ -38,8 +38,6 @@
     .email-status.sending { color:#856404; }
     .email-status.sent { color:#155724; }
     .email-status.failed { color:#721c24; }
-    .debug-info { background:#f8f9fa; border:1px solid #dee2e6; border-radius:4px; padding:10px; margin-top:10px; font-size:12px; display:none; }
-    .debug-info.show { display:block; }
   </style>
 </head>
 <body>
@@ -89,7 +87,6 @@
       
       <div id="message" class="message"></div>
       <div id="reservationDetails" class="reservation-details"></div>
-      <div id="debugInfo" class="debug-info"></div>
     </div>
   </div>
 
@@ -104,9 +101,6 @@
     const EMAILJS_PUBLIC_KEY = "au27lQTjY68orqjdG";
     const EMAILJS_SERVICE_ID = "service_azwud8j";
     const EMAILJS_TEMPLATE_ID = "template_n7iejzw";
-
-    // Debug mode
-    const DEBUG_MODE = true;
 
     // Initialize EmailJS
     let emailjsReady = false;
@@ -147,15 +141,6 @@
     const dateEl = document.getElementById('date');
     const peopleEl = document.getElementById('people');
     const detailsEl = document.getElementById('reservationDetails');
-    const debugEl = document.getElementById('debugInfo');
-
-    // Debug function
-    function showDebugInfo(message) {
-      if (DEBUG_MODE) {
-        debugEl.innerHTML += `<div>${new Date().toLocaleTimeString()}: ${message}</div>`;
-        debugEl.classList.add('show');
-      }
-    }
 
     // Set minimum date to today
     dateEl.min = new Date().toISOString().split('T')[0];
@@ -266,7 +251,6 @@
     // Form submission
     document.getElementById('reservationForm').addEventListener('submit', async (e)=>{
       e.preventDefault();
-      debugEl.innerHTML = ''; // Clear debug info
 
       // Get form values BEFORE any processing
       const firstName = document.getElementById('firstName').value.trim();
@@ -277,12 +261,8 @@
       const date      = dateEl.value;
       const hour      = selectedHour;
 
-      // Store form data in variables to prevent clearing
-      const formData = {
-        firstName, lastName, phone, email, people, date, hour
-      };
-
-      showDebugInfo(`Form data collected: ${JSON.stringify(formData)}`);
+      // Store form data to prevent clearing
+      const formData = { firstName, lastName, phone, email, people, date, hour };
 
       if (!firstName || !lastName || !phone || !email || !people || !date || hour===null) {
         return showMsg("Proszę wypełnić wszystkie pola", "error");
@@ -352,50 +332,83 @@
 
         // Save to Firebase
         await set(newRef, payload);
-        showDebugInfo("Reservation saved to Firebase");
 
         // Show reservation details
         showReservationDetails(payload, manageUrl);
 
-        // Try to send email
+        // Try to send email with multiple variable name combinations
         let emailStatus = 'failed';
         if (emailjsReady) {
-          try {
-            showDebugInfo("Preparing email parameters...");
-            
-            // Use stored form data instead of potentially cleared form fields
-            const emailParams = {
-              to_email: formData.email, // Use stored email
-              to_name: `${formData.firstName} ${formData.lastName}`, // Use stored names
-              reservation_code: reservationCode,
-              reservation_date: formData.date,
-              reservation_time: `${formData.hour}:00`,
-              people_count: formData.people,
-              table_number: `${cat}-${tableNumber}`,
-              manage_url: manageUrl,
-              cancel_code: cancelCode
-            };
+          // Try different variable name combinations
+          const emailAttempts = [
+            {
+              // Attempt 1: Standard EmailJS variables
+              params: {
+                email: formData.email,
+                name: `${formData.firstName} ${formData.lastName}`,
+                reservation_code: reservationCode,
+                reservation_date: formData.date,
+                reservation_time: `${formData.hour}:00`,
+                people_count: formData.people,
+                table_number: `${cat}-${tableNumber}`,
+                manage_url: manageUrl,
+                cancel_code: cancelCode
+              }
+            },
+            {
+              // Attempt 2: Alternative variables
+              params: {
+                to_email: formData.email,
+                to_name: `${formData.firstName} ${formData.lastName}`,
+                reservation_code: reservationCode,
+                reservation_date: formData.date,
+                reservation_time: `${formData.hour}:00`,
+                people_count: formData.people,
+                table_number: `${cat}-${tableNumber}`,
+                manage_url: manageUrl,
+                cancel_code: cancelCode
+              }
+            },
+            {
+              // Attempt 3: All possible variables
+              params: {
+                email: formData.email,
+                to_email: formData.email,
+                recipient_email: formData.email,
+                name: `${formData.firstName} ${formData.lastName}`,
+                to_name: `${formData.firstName} ${formData.lastName}`,
+                recipient_name: `${formData.firstName} ${formData.lastName}`,
+                reservation_code: reservationCode,
+                reservation_date: formData.date,
+                reservation_time: `${formData.hour}:00`,
+                people_count: formData.people,
+                table_number: `${cat}-${tableNumber}`,
+                manage_url: manageUrl,
+                cancel_code: cancelCode
+              }
+            }
+          ];
 
-            showDebugInfo(`Email params: ${JSON.stringify(emailParams)}`);
-            
-            // Send email
-            const response = await emailjs.send(
-              EMAILJS_SERVICE_ID, 
-              EMAILJS_TEMPLATE_ID, 
-              emailParams, 
-              EMAILJS_PUBLIC_KEY
-            );
-            
-            showDebugInfo(`Email response: ${JSON.stringify(response)}`);
-            emailStatus = 'sent';
-            console.log('Email sent successfully');
-          } catch (emailError) {
-            console.error('Email sending failed:', emailError);
-            showDebugInfo(`Email error: ${JSON.stringify(emailError)}`);
-            emailStatus = 'failed';
+          for (let i = 0; i < emailAttempts.length; i++) {
+            try {
+              console.log(`Email attempt ${i + 1}:`, emailAttempts[i].params);
+              const response = await emailjs.send(
+                EMAILJS_SERVICE_ID, 
+                EMAILJS_TEMPLATE_ID, 
+                emailAttempts[i].params, 
+                EMAILJS_PUBLIC_KEY
+              );
+              console.log('Email sent successfully:', response);
+              emailStatus = 'sent';
+              break; // Stop trying if successful
+            } catch (emailError) {
+              console.error(`Email attempt ${i + 1} failed:`, emailError);
+              if (i === emailAttempts.length - 1) {
+                // Last attempt failed
+                emailStatus = 'failed';
+              }
+            }
           }
-        } else {
-          showDebugInfo("EmailJS not ready");
         }
 
         // Update email status in UI
@@ -408,14 +421,13 @@
           showMsg(`Rezerwacja potwierdzona! Kod rezerwacji: ${reservationCode}. Email nie został wysłany - prosimy zapisać kod.`, "warning");
         }
 
-        // Reset form AFTER email is sent
+        // Reset form AFTER processing
         e.target.reset();
         document.querySelectorAll('.time-slot').forEach(s=>s.classList.remove('selected'));
         selectedHour = null;
 
       } catch (err) {
         console.error('Reservation error:', err);
-        showDebugInfo(`Reservation error: ${JSON.stringify(err)}`);
         showMsg("Błąd podczas rezerwacji. Spróbuj ponownie.", "error");
       } finally {
         submitBtn.disabled = false;
