@@ -3,260 +3,80 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>KamsBurg – Premium Restaurant Experience</title>
+  <title>KamsBurg – Rezerwacja stolików</title>
   
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Inter:wght@300;400;500;600;700&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
   
   <!-- Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
   <style>
-    :root {
-      --primary: #2c3e50;
-      --secondary: #e74c3c;
-      --accent: #f39c12;
-      --gold: #d4af37;
-      --light: #ecf0f1;
-      --dark: #1a1a1a;
-      --glass: rgba(255, 255, 255, 0.1);
-      --shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-      --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      --gold-gradient: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
-    }
-
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
     }
 
+    :root {
+      --primary: #2c3e50;
+      --secondary: #e74c3c;
+      --accent: #f39c12;
+      --light: #ecf0f1;
+      --dark: #1a1a1a;
+      --gray: #95a5a6;
+    }
+
     body {
-      font-family: 'Inter', sans-serif;
-      background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+      font-family: 'Montserrat', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       min-height: 100vh;
-      overflow-x: hidden;
-      position: relative;
+      color: #333;
     }
 
-    /* Animated Background */
-    .bg-animation {
-      position: fixed;
-      width: 100%;
-      height: 100%;
-      top: 0;
-      left: 0;
-      z-index: -1;
-      background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-      overflow: hidden;
-    }
-
-    .bg-animation::before {
-      content: '';
-      position: absolute;
-      width: 200%;
-      height: 200%;
-      top: -50%;
-      left: -50%;
-      background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
-      background-size: 50px 50px;
-      animation: bgMove 60s linear infinite;
-    }
-
-    @keyframes bgMove {
-      0% { transform: translate(0, 0); }
-      100% { transform: translate(50px, 50px); }
-    }
-
-    .floating-shapes {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-    }
-
-    .shape {
-      position: absolute;
-      background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
-      backdrop-filter: blur(10px);
-      border-radius: 50%;
-      animation: float 20s infinite ease-in-out;
-    }
-
-    .shape:nth-child(1) {
-      width: 80px;
-      height: 80px;
-      left: 10%;
-      top: 20%;
-      animation-delay: 0s;
-    }
-
-    .shape:nth-child(2) {
-      width: 120px;
-      height: 120px;
-      right: 15%;
-      top: 60%;
-      animation-delay: 2s;
-    }
-
-    .shape:nth-child(3) {
-      width: 60px;
-      height: 60px;
-      left: 70%;
-      bottom: 20%;
-      animation-delay: 4s;
-    }
-
-    @keyframes float {
-      0%, 100% { transform: translateY(0) rotate(0deg); }
-      33% { transform: translateY(-20px) rotate(120deg); }
-      66% { transform: translateY(20px) rotate(240deg); }
-    }
-
-    /* Hero Section */
-    .hero {
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
+    /* Header */
+    header {
+      background: white;
+      padding: 2rem 0;
       text-align: center;
-      padding: 2rem;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
       position: relative;
-      background: radial-gradient(ellipse at center, transparent 0%, rgba(0,0,0,0.4) 100%);
-    }
-
-    .hero-content {
-      z-index: 2;
-      animation: fadeInUp 1s ease-out;
-    }
-
-    @keyframes fadeInUp {
-      from {
-        opacity: 0;
-        transform: translateY(30px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
     }
 
     .logo {
-      font-family: 'Dancing Script', cursive;
-      font-size: 4rem;
-      color: var(--gold);
-      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-      margin-bottom: 1rem;
-      animation: glow 2s ease-in-out infinite alternate;
-    }
-
-    @keyframes glow {
-      from { text-shadow: 0 0 10px var(--gold), 0 0 20px var(--gold); }
-      to { text-shadow: 0 0 20px var(--gold), 0 0 30px var(--gold); }
+      font-family: 'Playfair Display', serif;
+      font-size: 3rem;
+      color: var(--primary);
+      margin-bottom: 0.5rem;
     }
 
     .tagline {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.5rem;
-      color: white;
-      margin-bottom: 2rem;
-      opacity: 0.9;
-    }
-
-    .scroll-indicator {
-      position: absolute;
-      bottom: 30px;
-      left: 50%;
-      transform: translateX(-50%);
-      animation: bounce 2s infinite;
-    }
-
-    @keyframes bounce {
-      0%, 20%, 50%, 80%, 100% { transform: translateX(-50%) translateY(0); }
-      40% { transform: translateX(-50%) translateY(-10px); }
-      60% { transform: translateX(-50%) translateY(-5px); }
-    }
-
-    .scroll-indicator i {
-      color: white;
-      font-size: 2rem;
-      opacity: 0.7;
-    }
-
-    /* Navigation */
-    nav {
-      position: fixed;
-      top: 0;
-      width: 100%;
-      padding: 1rem 2rem;
-      background: var(--glass);
-      backdrop-filter: blur(20px);
-      z-index: 1000;
-      transition: all 0.3s ease;
-    }
-
-    nav.scrolled {
-      background: rgba(26, 26, 26, 0.95);
-      box-shadow: var(--shadow);
-    }
-
-    .nav-container {
-      max-width: 1200px;
-      margin: 0 auto;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .nav-logo {
-      font-family: 'Dancing Script', cursive;
-      font-size: 2rem;
-      color: var(--gold);
-    }
-
-    .nav-links {
-      display: flex;
-      gap: 2rem;
-      list-style: none;
-    }
-
-    .nav-links a {
-      color: white;
-      text-decoration: none;
-      transition: color 0.3s ease;
-      font-weight: 500;
-    }
-
-    .nav-links a:hover {
-      color: var(--gold);
+      color: var(--gray);
+      font-size: 1.1rem;
     }
 
     /* Main Container */
     .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 2rem;
+      max-width: 800px;
+      margin: 3rem auto;
+      padding: 0 1rem;
     }
 
-    /* Glass Card */
-    .glass-card {
-      background: var(--glass);
-      backdrop-filter: blur(20px);
-      border-radius: 20px;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      box-shadow: var(--shadow);
+    /* Reservation Card */
+    .reservation-card {
+      background: white;
+      border-radius: 15px;
       padding: 3rem;
-      margin: 2rem 0;
-      animation: slideIn 0.6s ease-out;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      animation: fadeIn 0.6s ease-out;
     }
 
-    @keyframes slideIn {
+    @keyframes fadeIn {
       from {
         opacity: 0;
-        transform: translateY(50px);
+        transform: translateY(20px);
       }
       to {
         opacity: 1;
@@ -264,89 +84,21 @@
       }
     }
 
-    /* Section Headers */
-    .section-header {
-      text-align: center;
-      margin-bottom: 3rem;
-    }
-
     .section-title {
       font-family: 'Playfair Display', serif;
-      font-size: 3rem;
-      color: white;
-      margin-bottom: 1rem;
-      position: relative;
-      display: inline-block;
-    }
-
-    .section-title::after {
-      content: '';
-      position: absolute;
-      bottom: -10px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 100px;
-      height: 3px;
-      background: var(--gold-gradient);
-      border-radius: 2px;
+      font-size: 2rem;
+      color: var(--primary);
+      margin-bottom: 0.5rem;
+      text-align: center;
     }
 
     .section-subtitle {
-      color: rgba(255, 255, 255, 0.8);
-      font-size: 1.2rem;
-    }
-
-    /* Features Grid */
-    .features-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 2rem;
-      margin: 3rem 0;
-    }
-
-    .feature-card {
-      background: var(--glass);
-      backdrop-filter: blur(10px);
-      border-radius: 15px;
-      padding: 2rem;
       text-align: center;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: var(--gray);
+      margin-bottom: 2.5rem;
     }
 
-    .feature-card:hover {
-      transform: translateY(-10px);
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-    }
-
-    .feature-icon {
-      font-size: 3rem;
-      color: var(--gold);
-      margin-bottom: 1rem;
-    }
-
-    .feature-title {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.5rem;
-      color: white;
-      margin-bottom: 1rem;
-    }
-
-    .feature-description {
-      color: rgba(255, 255, 255, 0.8);
-      line-height: 1.6;
-    }
-
-    /* Reservation Form */
-    .reservation-form {
-      background: var(--glass);
-      backdrop-filter: blur(20px);
-      border-radius: 20px;
-      padding: 3rem;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      box-shadow: var(--shadow);
-    }
-
+    /* Form Styles */
     .form-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -360,256 +112,205 @@
 
     .form-group label {
       display: block;
-      color: white;
-      font-weight: 500;
       margin-bottom: 0.5rem;
-      font-size: 0.9rem;
-      text-transform: uppercase;
-      letter-spacing: 1px;
+      font-weight: 500;
+      color: var(--primary);
     }
 
     .form-group input,
     .form-group select {
       width: 100%;
       padding: 1rem;
-      background: rgba(255, 255, 255, 0.1);
-      border: 2px solid rgba(255, 255, 255, 0.2);
-      border-radius: 10px;
-      color: white;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
       font-size: 1rem;
       transition: all 0.3s ease;
-    }
-
-    .form-group input::placeholder {
-      color: rgba(255, 255, 255, 0.5);
     }
 
     .form-group input:focus,
     .form-group select:focus {
       outline: none;
-      border-color: var(--gold);
-      background: rgba(255, 255, 255, 0.15);
-      box-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(243, 156, 18, 0.1);
     }
 
     .form-group select option {
-      background: var(--primary);
-      color: white;
+      background: white;
+      color: #333;
     }
 
     /* Time Slots */
     .time-slots {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
       gap: 1rem;
       margin-top: 1rem;
     }
 
     .time-slot {
-      padding: 1rem;
+      padding: 0.8rem;
       text-align: center;
-      background: rgba(255, 255, 255, 0.1);
-      border: 2px solid rgba(255, 255, 255, 0.2);
-      border-radius: 10px;
-      color: white;
+      background: #f8f9fa;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
       cursor: pointer;
       transition: all 0.3s ease;
       font-weight: 500;
-      position: relative;
-      overflow: hidden;
     }
 
-    .time-slot::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: var(--gold-gradient);
-      transition: left 0.3s ease;
-      z-index: -1;
-    }
-
-    .time-slot:hover::before {
-      left: 0;
-    }
-
-    .time-slot:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    .time-slot:hover:not(.unavailable) {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+      transform: translateY(-2px);
     }
 
     .time-slot.selected {
-      background: var(--gold-gradient);
-      border-color: var(--gold);
-      color: var(--dark);
-      font-weight: 600;
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
     }
 
     .time-slot.unavailable {
-      background: rgba(255, 255, 255, 0.05);
-      color: rgba(255, 255, 255, 0.3);
+      background: #f5f5f5;
+      color: #ccc;
       cursor: not-allowed;
-      opacity: 0.5;
+      opacity: 0.6;
     }
 
-    /* Buttons */
+    /* Button */
     .btn {
       padding: 1rem 2rem;
       border: none;
-      border-radius: 50px;
+      border-radius: 8px;
       font-size: 1.1rem;
       font-weight: 600;
       cursor: pointer;
       transition: all 0.3s ease;
       text-transform: uppercase;
       letter-spacing: 1px;
-      position: relative;
-      overflow: hidden;
     }
 
     .btn-primary {
-      background: var(--gold-gradient);
-      color: var(--dark);
-      box-shadow: 0 10px 30px rgba(212, 175, 55, 0.3);
+      background: var(--primary);
+      color: white;
+      width: 100%;
     }
 
-    .btn-primary:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 15px 40px rgba(212, 175, 55, 0.4);
+    .btn-primary:hover:not(:disabled) {
+      background: #34495e;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
     }
 
     .btn-primary:disabled {
-      background: rgba(255, 255, 255, 0.1);
-      color: rgba(255, 255, 255, 0.3);
+      background: #ccc;
       cursor: not-allowed;
       transform: none;
       box-shadow: none;
     }
 
-    .btn-block {
-      width: 100%;
-    }
-
     /* Messages */
     .message {
-      padding: 1.5rem;
-      border-radius: 10px;
-      margin-top: 2rem;
+      padding: 1rem;
+      border-radius: 8px;
+      margin-top: 1.5rem;
       display: none;
       animation: slideIn 0.3s ease-out;
-      position: relative;
-      overflow: hidden;
     }
 
-    .message::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 4px;
-      height: 100%;
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     .message.success {
-      background: rgba(46, 204, 113, 0.1);
-      border: 1px solid rgba(46, 204, 113, 0.3);
-      color: #2ecc71;
-    }
-
-    .message.success::before {
-      background: #2ecc71;
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
     }
 
     .message.error {
-      background: rgba(231, 76, 60, 0.1);
-      border: 1px solid rgba(231, 76, 60, 0.3);
-      color: #e74c3c;
-    }
-
-    .message.error::before {
-      background: #e74c3c;
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
     }
 
     .message.warning {
-      background: rgba(243, 156, 18, 0.1);
-      border: 1px solid rgba(243, 156, 18, 0.3);
-      color: #f39c12;
-    }
-
-    .message.warning::before {
-      background: #f39c12;
+      background: #fff3cd;
+      color: #856404;
+      border: 1px solid #ffeeba;
     }
 
     /* Reservation Details */
     .reservation-details {
-      background: var(--glass);
-      backdrop-filter: blur(20px);
-      border-radius: 20px;
+      background: #f8f9fa;
+      border-radius: 8px;
       padding: 2rem;
       margin-top: 2rem;
-      border: 1px solid rgba(255, 255, 255, 0.2);
       display: none;
-      animation: slideIn 0.5s ease-out;
+      border: 2px solid #e9ecef;
     }
 
     .reservation-details h3 {
-      font-family: 'Playfair Display', serif;
-      font-size: 2rem;
-      color: var(--gold);
+      color: var(--primary);
       margin-bottom: 1.5rem;
       text-align: center;
+      font-size: 1.5rem;
     }
 
     .details-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 1.5rem;
-      margin-bottom: 2rem;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
     }
 
     .detail-item {
-      background: rgba(255, 255, 255, 0.05);
+      background: white;
       padding: 1rem;
-      border-radius: 10px;
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 6px;
+      border: 1px solid #e0e0e0;
     }
 
     .detail-label {
-      color: rgba(255, 255, 255, 0.7);
       font-size: 0.9rem;
-      margin-bottom: 0.5rem;
+      color: var(--gray);
+      margin-bottom: 0.3rem;
     }
 
     .detail-value {
-      color: white;
-      font-size: 1.1rem;
-      font-weight: 500;
+      font-weight: 600;
+      color: var(--primary);
     }
 
     .code-display {
-      background: var(--gold-gradient);
-      color: var(--dark);
-      padding: 1.5rem;
-      border-radius: 10px;
+      background: var(--accent);
+      color: white;
+      padding: 1rem;
+      border-radius: 8px;
       text-align: center;
-      font-size: 1.5rem;
+      font-size: 1.3rem;
       font-weight: bold;
-      margin: 1.5rem 0;
-      box-shadow: 0 10px 30px rgba(212, 175, 55, 0.3);
+      margin: 1rem 0;
     }
 
-    /* Loading Spinner */
+    /* Loading */
     .loading {
       display: inline-block;
-      width: 20px;
-      height: 20px;
-      border: 3px solid rgba(255, 255, 255, 0.3);
-      border-top: 3px solid white;
+      width: 16px;
+      height: 16px;
+      border: 2px solid #f3f3f3;
+      border-top: 2px solid var(--primary);
       border-radius: 50%;
       animation: spin 1s linear infinite;
-      margin-right: 10px;
+      margin-right: 8px;
     }
 
     @keyframes spin {
@@ -620,165 +321,68 @@
     /* Email Status */
     .email-status {
       margin-top: 1rem;
-      padding: 1rem;
-      border-radius: 10px;
+      padding: 0.8rem;
+      border-radius: 6px;
       text-align: center;
-      font-weight: 500;
+      font-size: 0.9rem;
     }
 
     .email-status.sending {
-      background: rgba(243, 156, 18, 0.1);
-      color: #f39c12;
-      border: 1px solid rgba(243, 156, 18, 0.3);
+      background: #fff3cd;
+      color: #856404;
     }
 
     .email-status.sent {
-      background: rgba(46, 204, 113, 0.1);
-      color: #2ecc71;
-      border: 1px solid rgba(46, 204, 113, 0.3);
+      background: #d4edda;
+      color: #155724;
     }
 
     .email-status.failed {
-      background: rgba(231, 76, 60, 0.1);
-      color: #e74c3c;
-      border: 1px solid rgba(231, 76, 60, 0.3);
-    }
-
-    /* Menu Preview */
-    .menu-preview {
-      margin: 3rem 0;
-    }
-
-    .menu-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 2rem;
-    }
-
-    .menu-item {
-      background: var(--glass);
-      backdrop-filter: blur(10px);
-      border-radius: 15px;
-      overflow: hidden;
-      transition: transform 0.3s ease;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    .menu-item:hover {
-      transform: scale(1.05);
-    }
-
-    .menu-image {
-      width: 100%;
-      height: 200px;
-      background: var(--gradient);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-size: 3rem;
-    }
-
-    .menu-content {
-      padding: 1.5rem;
-    }
-
-    .menu-title {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.3rem;
-      color: white;
-      margin-bottom: 0.5rem;
-    }
-
-    .menu-description {
-      color: rgba(255, 255, 255, 0.8);
-      font-size: 0.9rem;
-      margin-bottom: 1rem;
-    }
-
-    .menu-price {
-      color: var(--gold);
-      font-size: 1.2rem;
-      font-weight: bold;
+      background: #f8d7da;
+      color: #721c24;
     }
 
     /* Footer */
     footer {
-      background: var(--dark);
-      padding: 3rem 0 1rem;
-      margin-top: 5rem;
+      background: white;
+      padding: 2rem;
+      text-align: center;
+      margin-top: 3rem;
+      box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
     }
 
     .footer-content {
-      max-width: 1200px;
+      max-width: 800px;
       margin: 0 auto;
-      padding: 0 2rem;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 2rem;
     }
 
-    .footer-section h3 {
-      color: var(--gold);
-      margin-bottom: 1rem;
-      font-family: 'Playfair Display', serif;
-    }
-
-    .footer-section p,
-    .footer-section a {
-      color: rgba(255, 255, 255, 0.8);
-      text-decoration: none;
-      line-height: 1.8;
-    }
-
-    .footer-section a:hover {
-      color: var(--gold);
-    }
-
-    .social-links {
+    .contact-info {
       display: flex;
-      gap: 1rem;
-      margin-top: 1rem;
+      justify-content: center;
+      gap: 2rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
     }
 
-    .social-links a {
-      width: 40px;
-      height: 40px;
-      background: var(--glass);
-      border-radius: 50%;
+    .contact-item {
       display: flex;
       align-items: center;
-      justify-content: center;
-      color: white;
-      transition: all 0.3s ease;
+      gap: 0.5rem;
+      color: var(--gray);
     }
 
-    .social-links a:hover {
-      background: var(--gold);
-      color: var(--dark);
-      transform: translateY(-3px);
+    .contact-item i {
+      color: var(--primary);
     }
 
-    .footer-bottom {
-      text-align: center;
-      padding: 2rem;
-      border-top: 1px solid rgba(255, 255, 255, 0.1);
-      color: rgba(255, 255, 255, 0.6);
-      margin-top: 2rem;
-    }
-
-    /* Responsive Design */
+    /* Responsive */
     @media (max-width: 768px) {
       .logo {
-        font-size: 3rem;
-      }
-
-      .section-title {
         font-size: 2rem;
       }
 
-      .nav-links {
-        display: none;
+      .reservation-card {
+        padding: 2rem 1.5rem;
       }
 
       .form-grid {
@@ -786,190 +390,31 @@
       }
 
       .time-slots {
-        grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
       }
 
       .details-grid {
         grid-template-columns: 1fr;
       }
-    }
 
-    /* Accessibility */
-    .sr-only {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      padding: 0;
-      margin: -1px;
-      overflow: hidden;
-      clip: rect(0, 0, 0, 0);
-      white-space: nowrap;
-      border: 0;
-    }
-
-    /* Focus styles */
-    *:focus {
-      outline: 2px solid var(--gold);
-      outline-offset: 2px;
-    }
-
-    /* Print styles */
-    @media print {
-      .bg-animation,
-      .floating-shapes,
-      nav,
-      .scroll-indicator {
-        display: none;
-      }
-
-      body {
-        background: white;
-        color: black;
-      }
-
-      .glass-card {
-        background: white;
-        box-shadow: none;
-        border: 1px solid #ccc;
+      .contact-info {
+        flex-direction: column;
+        gap: 1rem;
       }
     }
   </style>
 </head>
 <body>
-  <!-- Animated Background -->
-  <div class="bg-animation">
-    <div class="floating-shapes">
-      <div class="shape"></div>
-      <div class="shape"></div>
-      <div class="shape"></div>
-    </div>
-  </div>
+  <header>
+    <div class="logo">KamsBurg</div>
+    <div class="tagline">Luksusowa restauracja • wyjątkowe smaki</div>
+  </header>
 
-  <!-- Navigation -->
-  <nav id="navbar">
-    <div class="nav-container">
-      <div class="nav-logo">KamsBurg</div>
-      <ul class="nav-links">
-        <li><a href="#home">Home</a></li>
-        <li><a href="#about">O nas</a></li>
-        <li><a href="#menu">Menu</a></li>
-        <li><a href="#reservation">Rezerwacja</a></li>
-        <li><a href="#contact">Kontakt</a></li>
-      </ul>
-    </div>
-  </nav>
-
-  <!-- Hero Section -->
-  <section class="hero" id="home">
-    <div class="hero-content">
-      <div class="logo">KamsBurg</div>
-      <div class="tagline">Doświadcz kulinarnej doskonałości</div>
-      <p style="color: rgba(255,255,255,0.8); max-width: 600px; margin: 0 auto 2rem;">
-        Luksusowa restauracja łącząca tradycję z nowoczesnością. 
-        Odkryj wyjątkowe smaki w niepowtarzalnej atmosferze.
-      </p>
-      <a href="#reservation" class="btn btn-primary">Zarezerwuj stolik</a>
-    </div>
-    <div class="scroll-indicator">
-      <i class="fas fa-chevron-down"></i>
-    </div>
-  </section>
-
-  <!-- About Section -->
-  <section id="about" class="container">
-    <div class="glass-card">
-      <div class="section-header">
-        <h2 class="section-title">O nas</h2>
-        <p class="section-subtitle">Poznaj naszą historię i pasję</p>
-      </div>
-      <div class="features-grid">
-        <div class="feature-card">
-          <div class="feature-icon">
-            <i class="fas fa-award"></i>
-          </div>
-          <h3 class="feature-title">Nagradzana kuchnia</h3>
-          <p class="feature-description">
-            Nasze dania zdobyły uznanie krytyków kulinarnych i gości z całego świata.
-          </p>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon">
-            <i class="fas fa-leaf"></i>
-          </div>
-          <h3 class="feature-title">Lokalne produkty</h3>
-          <p class="feature-description">
-            Wspieramy lokalnych dostawców i używamy tylko najświeższych składników.
-          </p>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon">
-            <i class="fas fa-wine-glass"></i>
-          </div>
-          <h3 class="feature-title">Wyjątkowe wina</h3>
-          <p class="feature-description">
-            Nasza piwnica oferuje ponad 200 etykiet z najlepszych winnic świata.
-          </p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Menu Preview -->
-  <section id="menu" class="container">
-    <div class="section-header">
-      <h2 class="section-title">Nasze menu</h2>
-      <p class="section-subtitle">Degustuj arcydzieła naszej kuchni</p>
-    </div>
-    <div class="menu-preview">
-      <div class="menu-grid">
-        <div class="menu-item">
-          <div class="menu-image">
-            <i class="fas fa-drumstick-bite"></i>
-          </div>
-          <div class="menu-content">
-            <h3 class="menu-title">KamsBurg Premium</h3>
-            <p class="menu-description">
-              Wołowa wołowina z trufli, serem camembert i domowym sosem
-            </p>
-            <div class="menu-price">89 zł</div>
-          </div>
-        </div>
-        <div class="menu-item">
-          <div class="menu-image">
-            <i class="fas fa-fish"></i>
-          </div>
-          <div class="menu-content">
-            <h3 class="menu-title">Łosoś w glazurze</h3>
-            <p class="menu-description">
-              Świeży łosoś z miód-musztardą, podawany z quinoa i awokado
-            </p>
-            <div class="menu-price">125 zł</div>
-          </div>
-        </div>
-        <div class="menu-item">
-          <div class="menu-image">
-            <i class="fas fa-pizza-slice"></i>
-          </div>
-          <div class="menu-content">
-            <h3 class="menu-title">Pizza Truffle</h3>
-            <p class="menu-description">
-              Tradycyjne ciasto z truflami, parmezanem i rukolą
-            </p>
-            <div class="menu-price">68 zł</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Reservation Section -->
-  <section id="reservation" class="container">
-    <div class="section-header">
+  <main class="container">
+    <div class="reservation-card">
       <h2 class="section-title">Rezerwacja stolika</h2>
-      <p class="section-subtitle">Zarezerwuj swój wymarzony stolik</p>
-    </div>
-    
-    <div class="reservation-form">
+      <p class="section-subtitle">Zarezerwuj stolik w naszej restauracji</p>
+      
       <form id="reservationForm">
         <div class="form-grid">
           <div class="form-group">
@@ -982,7 +427,7 @@
           </div>
           <div class="form-group">
             <label for="phone">Telefon</label>
-            <input type="tel" id="phone" required placeholder="+48 123 456 789">
+            <input type="tel" id="phone" required placeholder="123 456 789">
           </div>
           <div class="form-group">
             <label for="email">Email</label>
@@ -1009,7 +454,7 @@
           <div id="timeSlots" class="time-slots"></div>
         </div>
         
-        <button type="submit" id="submitBtn" class="btn btn-primary btn-block" disabled>
+        <button type="submit" id="submitBtn" class="btn btn-primary" disabled>
           Zarezerwuj stolik
         </button>
       </form>
@@ -1017,92 +462,27 @@
       <div id="message" class="message"></div>
       <div id="reservationDetails" class="reservation-details"></div>
     </div>
-  </section>
+  </main>
 
-  <!-- Contact Section -->
-  <section id="contact" class="container">
-    <div class="glass-card">
-      <div class="section-header">
-        <h2 class="section-title">Kontakt</h2>
-        <p class="section-subtitle">Jesteśmy do Twojej dyspozycji</p>
-      </div>
-      <div class="features-grid">
-        <div class="feature-card">
-          <div class="feature-icon">
-            <i class="fas fa-map-marker-alt"></i>
-          </div>
-          <h3 class="feature-title">Adres</h3>
-          <p class="feature-description">
-            ul. Smaczna 123<br>
-            00-001 Warszawa
-          </p>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon">
-            <i class="fas fa-phone"></i>
-          </div>
-          <h3 class="feature-title">Telefon</h3>
-          <p class="feature-description">
-            +48 123 456 789<br>
-            Poniedziałek - Niedziela: 12:00 - 23:00
-          </p>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon">
-            <i class="fas fa-envelope"></i>
-          </div>
-          <h3 class="feature-title">Email</h3>
-          <p class="feature-description">
-            rezerwacje@kamsburg.pl<br>
-            info@kamsburg.pl
-          </p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Footer -->
   <footer>
     <div class="footer-content">
-      <div class="footer-section">
-        <h3>KamsBurg</h3>
-        <p>
-          Luksusowa restauracja serwująca wyjątkowe doznania kulinarne 
-          w sercu Warszawy od 2010 roku.
-        </p>
-        <div class="social-links">
-          <a href="#"><i class="fab fa-facebook-f"></i></a>
-          <a href="#"><i class="fab fa-instagram"></i></a>
-          <a href="#"><i class="fab fa-twitter"></i></a>
-          <a href="#"><i class="fab fa-linkedin-in"></i></a>
+      <div class="contact-info">
+        <div class="contact-item">
+          <i class="fas fa-phone"></i>
+          <span>123 456 789</span>
+        </div>
+        <div class="contact-item">
+          <i class="fas fa-envelope"></i>
+          <span>info@kamsburg.pl</span>
+        </div>
+        <div class="contact-item">
+          <i class="fas fa-map-marker-alt"></i>
+          <span>ul. Smaczna 123, Warszawa</span>
         </div>
       </div>
-      <div class="footer-section">
-        <h3>Godziny otwarcia</h3>
-        <p>
-          Poniedziałek - Piątek: 12:00 - 23:00<br>
-          Sobota: 13:00 - 24:00<br>
-          Niedziela: 13:00 - 22:00
-        </p>
-      </div>
-      <div class="footer-section">
-        <h3>Linki</h3>
-        <p>
-          <a href="#about">O nas</a><br>
-          <a href="#menu">Menu</a><br>
-          <a href="#reservation">Rezerwacja</a><br>
-          <a href="#contact">Kontakt</a>
-        </p>
-      </div>
-      <div class="footer-section">
-        <h3>Newsletter</h3>
-        <p>
-          Zapisz się, aby otrzymywać informacje o promocjach i wydarzeniach.
-        </p>
-      </div>
-    </div>
-    <div class="footer-bottom">
-      <p>&copy; 2024 KamsBurg. Wszelkie prawa zastrzeżone. | Projekt z ❤️ i pasją</p>
+      <p style="color: var(--gray); font-size: 0.9rem;">
+        © 2024 KamsBurg. Wszelkie prawa zastrzeżone.
+      </p>
     </div>
   </footer>
 
@@ -1157,45 +537,18 @@
     const dateEl = document.getElementById('date');
     const peopleEl = document.getElementById('people');
     const detailsEl = document.getElementById('reservationDetails');
-    const navbar = document.getElementById('navbar');
-
-    // Navbar scroll effect
-    window.addEventListener('scroll', () => {
-      if (window.scrollY > 100) {
-        navbar.classList.add('scrolled');
-      } else {
-        navbar.classList.remove('scrolled');
-      }
-    });
-
-    // Smooth scrolling for navigation links
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-      anchor.addEventListener('click', function (e) {
-        e.preventDefault();
-        const target = document.querySelector(this.getAttribute('href'));
-        if (target) {
-          target.scrollIntoView({
-            behavior: 'smooth',
-            block: 'start'
-          });
-        }
-      });
-    });
 
     // Set minimum date to today
     dateEl.min = new Date().toISOString().split('T')[0];
 
-    // Generate time slots with animation
+    // Generate time slots
     for (let h = OPENING_HOURS.start; h < OPENING_HOURS.end; h++) {
-      setTimeout(() => {
-        const div = document.createElement('div');
-        div.textContent = `${h}:00`;
-        div.className = 'time-slot';
-        div.dataset.hour = h;
-        div.onclick = () => selectTimeSlot(div, h);
-        div.style.animation = 'fadeInUp 0.5s ease-out';
-        timeSlotsEl.appendChild(div);
-      }, (h - OPENING_HOURS.start) * 50);
+      const div = document.createElement('div');
+      div.textContent = `${h}:00`;
+      div.className = 'time-slot';
+      div.dataset.hour = h;
+      div.onclick = () => selectTimeSlot(div, h);
+      timeSlotsEl.appendChild(div);
     }
 
     function selectTimeSlot(element, hour) {
@@ -1295,7 +648,7 @@
     document.getElementById('reservationForm').addEventListener('submit', async (e)=>{
       e.preventDefault();
 
-      // Get form values BEFORE any processing
+      // Get form values
       const firstName = document.getElementById('firstName').value.trim();
       const lastName  = document.getElementById('lastName').value.trim();
       const phone     = document.getElementById('phone').value.trim();
@@ -1304,14 +657,14 @@
       const date      = dateEl.value;
       const hour      = selectedHour;
 
-      // Store form data to prevent clearing
+      // Store form data
       const formData = { firstName, lastName, phone, email, people, date, hour };
 
       if (!firstName || !lastName || !phone || !email || !people || !date || hour===null) {
         return showMsg("Proszę wypełnić wszystkie pola", "error");
       }
 
-      // Validate email format
+      // Validate email
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(email)) {
         return showMsg("Proszę podać prawidłowy adres email", "error");
@@ -1379,13 +732,11 @@
         // Show reservation details
         showReservationDetails(payload, manageUrl);
 
-        // Try to send email with multiple variable name combinations
+        // Try to send email
         let emailStatus = 'failed';
         if (emailjsReady) {
-          // Try different variable name combinations
           const emailAttempts = [
             {
-              // Attempt 1: Standard EmailJS variables
               params: {
                 email: formData.email,
                 name: `${formData.firstName} ${formData.lastName}`,
@@ -1399,28 +750,9 @@
               }
             },
             {
-              // Attempt 2: Alternative variables
               params: {
                 to_email: formData.email,
                 to_name: `${formData.firstName} ${formData.lastName}`,
-                reservation_code: reservationCode,
-                reservation_date: formData.date,
-                reservation_time: `${formData.hour}:00`,
-                people_count: formData.people,
-                table_number: `${cat}-${tableNumber}`,
-                manage_url: manageUrl,
-                cancel_code: cancelCode
-              }
-            },
-            {
-              // Attempt 3: All possible variables
-              params: {
-                email: formData.email,
-                to_email: formData.email,
-                recipient_email: formData.email,
-                name: `${formData.firstName} ${formData.lastName}`,
-                to_name: `${formData.firstName} ${formData.lastName}`,
-                recipient_name: `${formData.firstName} ${formData.lastName}`,
                 reservation_code: reservationCode,
                 reservation_date: formData.date,
                 reservation_time: `${formData.hour}:00`,
@@ -1434,43 +766,36 @@
 
           for (let i = 0; i < emailAttempts.length; i++) {
             try {
-              console.log(`Email attempt ${i + 1}:`, emailAttempts[i].params);
               const response = await emailjs.send(
                 EMAILJS_SERVICE_ID, 
                 EMAILJS_TEMPLATE_ID, 
                 emailAttempts[i].params, 
                 EMAILJS_PUBLIC_KEY
               );
-              console.log('Email sent successfully:', response);
               emailStatus = 'sent';
-              break; // Stop trying if successful
+              break;
             } catch (emailError) {
-              console.error(`Email attempt ${i + 1} failed:`, emailError);
               if (i === emailAttempts.length - 1) {
-                // Last attempt failed
                 emailStatus = 'failed';
               }
             }
           }
         }
 
-        // Update email status in UI
+        // Update email status
         updateEmailStatus(emailStatus);
 
         // Show final message
         if (emailStatus === 'sent') {
-          showMsg(`🎉 Rezerwacja potwierdzona! Email z potwierdzeniem został wysłany na ${formData.email}`, "success");
+          showMsg(`✅ Rezerwacja potwierdzona! Email wysłany na ${formData.email}`, "success");
         } else {
-          showMsg(`✅ Rezerwacja potwierdzona! Kod rezerwacji: ${reservationCode}. Email nie został wysłany - prosimy zapisać kod.`, "warning");
+          showMsg(`✅ Rezerwacja potwierdzona! Kod: ${reservationCode}`, "warning");
         }
 
-        // Reset form AFTER processing
+        // Reset form
         e.target.reset();
         document.querySelectorAll('.time-slot').forEach(s=>s.classList.remove('selected'));
         selectedHour = null;
-
-        // Scroll to reservation details
-        detailsEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
       } catch (err) {
         console.error('Reservation error:', err);
@@ -1487,7 +812,7 @@
         <div class="details-grid">
           <div class="detail-item">
             <div class="detail-label">Kod rezerwacji</div>
-            <div class="detail-value" style="font-size: 1.3rem; font-weight: bold; color: var(--gold);">
+            <div class="detail-value" style="font-size: 1.2rem; color: var(--accent);">
               ${reservation.reservationCode}
             </div>
           </div>
@@ -1512,13 +837,13 @@
             <div class="detail-value">${reservation.cancelCode}</div>
           </div>
         </div>
-        <div style="text-align: center; margin-top: 1.5rem;">
-          <a href="${manageUrl}" class="btn btn-primary" target="_blank">
+        <div style="text-align: center; margin-top: 1rem;">
+          <a href="${manageUrl}" class="btn btn-primary" style="display: inline-block; width: auto;" target="_blank">
             Zarządzaj rezerwacją
           </a>
         </div>
         <div class="email-status" id="emailStatus">
-          <span class="loading"></span>Wysyłanie emaila z potwierdzeniem...
+          <span class="loading"></span>Wysyłanie emaila...
         </div>
       `;
       detailsEl.style.display = 'block';
@@ -1533,7 +858,7 @@
         statusEl.innerHTML = '✅ Email wysłany pomyślnie';
       } else if (status === 'failed') {
         statusEl.className = 'email-status failed';
-        statusEl.innerHTML = '❌ Email nie został wysłany - prosimy zapisać kod rezerwacji';
+        statusEl.innerHTML = '❌ Email nie wysłany - zapisz kod rezerwacji';
       }
     }
 
@@ -1543,31 +868,8 @@
       msgEl.style.display = "block";
       setTimeout(()=>{ 
         msgEl.style.display="none"; 
-      }, type === 'warning' ? 10000 : 6000);
+      }, 8000);
     }
-
-    // Add intersection observer for animations
-    const observerOptions = {
-      threshold: 0.1,
-      rootMargin: '0px 0px -50px 0px'
-    };
-
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.style.opacity = '1';
-          entry.target.style.transform = 'translateY(0)';
-        }
-      });
-    }, observerOptions);
-
-    // Observe all glass cards
-    document.querySelectorAll('.glass-card').forEach(card => {
-      card.style.opacity = '0';
-      card.style.transform = 'translateY(30px)';
-      card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-      observer.observe(card);
-    });
   </script>
 </body>
 </html>
