@@ -23,6 +23,8 @@
     .message { margin-top:1rem; padding:.8rem; border-radius:4px; display:none; }
     .message.success { background:#d4edda; color:#155724; }
     .message.error { background:#f8d7da; color:#721c24; }
+    .debug-info { background:#f8f9fa; border:1px solid #dee2e6; border-radius:4px; padding:10px; margin-top:10px; font-size:12px; display:none; }
+    .debug-info.show { display:block; }
   </style>
 </head>
 <body>
@@ -70,6 +72,7 @@
         <button type="submit" id="submitBtn" disabled>Zarezerwuj stolik</button>
       </form>
       <div id="message" class="message"></div>
+      <div id="debugInfo" class="debug-info"></div>
     </div>
   </div>
 
@@ -80,10 +83,22 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
     import { getDatabase, ref, push, set, onValue } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
-    // Initialize EmailJS
-    (function() {
-      emailjs.init("au27lQTjY68orqjdG"); // Public key
-    })();
+    // Debug mode - set to true to see detailed logs
+    const DEBUG_MODE = true;
+
+    // Initialize EmailJS with error handling
+    let emailjsInitialized = false;
+    
+    try {
+      (function() {
+        emailjs.init("au27lQTjY68orqjdG"); // Public key
+        emailjsInitialized = true;
+        if (DEBUG_MODE) console.log("EmailJS initialized successfully");
+      })();
+    } catch (error) {
+      console.error("EmailJS initialization failed:", error);
+      showDebugInfo("EmailJS initialization failed: " + error.message);
+    }
 
     // Firebase config
     const firebaseConfig = {
@@ -113,6 +128,15 @@
     const msgEl = document.getElementById('message');
     const dateEl = document.getElementById('date');
     const peopleEl = document.getElementById('people');
+    const debugEl = document.getElementById('debugInfo');
+
+    // Debug function
+    function showDebugInfo(message) {
+      if (DEBUG_MODE) {
+        debugEl.innerHTML += `<div>${new Date().toLocaleTimeString()}: ${message}</div>`;
+        debugEl.classList.add('show');
+      }
+    }
 
     // min date = today
     dateEl.min = new Date().toISOString().split('T')[0];
@@ -209,9 +233,46 @@
       return code;
     }
 
+    // Test EmailJS connection
+    async function testEmailJS() {
+      if (!emailjsInitialized) {
+        throw new Error("EmailJS not initialized");
+      }
+      
+      showDebugInfo("Testing EmailJS connection...");
+      
+      // Test with minimal parameters
+      const testParams = {
+        to_email: "test@example.com",
+        to_name: "Test User",
+        reservation_code: "TEST123",
+        reservation_date: "2024-01-01",
+        reservation_time: "12:00",
+        people_count: "2",
+        table_number: "2-1",
+        manage_url: "https://example.com",
+        cancel_code: "123456"
+      };
+
+      try {
+        const response = await emailjs.send(
+          'service_azwud8j', 
+          'template_n7iejzw', 
+          testParams, 
+          'bCOeBMZ5MF-a8A9l3weiW'
+        );
+        showDebugInfo(`EmailJS test successful: ${response.status}`);
+        return true;
+      } catch (error) {
+        showDebugInfo(`EmailJS test failed: ${error.text || error.message}`);
+        return false;
+      }
+    }
+
     // Submit
     document.getElementById('reservationForm').addEventListener('submit', async (e)=>{
       e.preventDefault();
+      debugEl.innerHTML = ''; // Clear debug info
 
       const firstName = document.getElementById('firstName').value.trim();
       const lastName  = document.getElementById('lastName').value.trim();
@@ -224,6 +285,8 @@
       if (!firstName || !lastName || !phone || !email || !people || !date || hour===null) {
         return showMsg("Proszę wypełnić wszystkie pola", "error");
       }
+
+      showDebugInfo(`Starting reservation for ${email}`);
 
       // choose table
       let cat = 2; for (const s of [2,4,6,8]) { if (people <= s) { cat = s; break; } }
@@ -245,6 +308,8 @@
       if (!tableNumber) return showMsg("Ta godzina jest już zajęta.", "error");
 
       try {
+        showDebugInfo("Saving reservation to Firebase...");
+        
         // create node key first
         const newRef = push(ref(db, `reservations/${date}`));
         const id = newRef.key;
@@ -269,8 +334,9 @@
 
         // save reservation
         await set(newRef, payload);
+        showDebugInfo("Reservation saved to Firebase successfully");
 
-        // Send confirmation email using EmailJS
+        // Prepare email parameters
         const emailParams = {
           to_email: email,
           to_name: `${firstName} ${lastName}`,
@@ -283,14 +349,25 @@
           cancel_code: cancelCode
         };
 
-        // Using your service ID and template ID
-        await emailjs.send('service_azwud8j', 'template_n7iejzw', emailParams, 'bCOeBMZ5MF-a8A9l3weiW')
-          .then(function(response) {
-            console.log('Email sent successfully!', response.status, response.text);
-          }, function(error) {
-            console.log('Failed to send email:', error);
-            // Still show success message even if email fails
-          });
+        showDebugInfo("Email parameters prepared:");
+        showDebugInfo(JSON.stringify(emailParams, null, 2));
+
+        // Send confirmation email using EmailJS
+        showDebugInfo("Sending email via EmailJS...");
+        
+        if (!emailjsInitialized) {
+          throw new Error("EmailJS is not initialized. Check your public key.");
+        }
+
+        const emailResponse = await emailjs.send(
+          'service_azwud8j', 
+          'template_n7iejzw', 
+          emailParams, 
+          'bCOeBMZ5MF-a8A9l3weiW'
+        );
+
+        showDebugInfo(`Email sent successfully! Status: ${emailResponse.status}`);
+        showDebugInfo(`Response: ${JSON.stringify(emailResponse)}`);
 
         showMsg(`Rezerwacja potwierdzona! Twój kod rezerwacji: ${reservationCode}. Sprawdź maila: ${email}`, "success");
         e.target.reset();
@@ -299,8 +376,22 @@
         submitBtn.disabled = true;
 
       } catch (err) {
-        console.error(err);
-        showMsg("Błąd podczas rezerwacji. Spróbuj ponownie.", "error");
+        console.error("Full error:", err);
+        showDebugInfo(`Error occurred: ${err.message}`);
+        showDebugInfo(`Error details: ${JSON.stringify(err, null, 2)}`);
+        
+        // More specific error messages
+        if (err.text && err.text.includes("The user ID is required")) {
+          showMsg("Błąd konfiguracji EmailJS: Brakujący klucz publiczny.", "error");
+        } else if (err.text && err.text.includes("The service ID is required")) {
+          showMsg("Błąd konfiguracji EmailJS: Nieprawidłowy Service ID.", "error");
+        } else if (err.text && err.text.includes("The template ID is required")) {
+          showMsg("Błąd konfiguracji EmailJS: Nieprawidłowy Template ID.", "error");
+        } else if (err.text && err.text.includes("The public key is required")) {
+          showMsg("Błąd konfiguracji EmailJS: Nieprawidłowy klucz publiczny.", "error");
+        } else {
+          showMsg(`Błąd podczas rezerwacji: ${err.message || err.text || 'Nieznany błąd'}`, "error");
+        }
       }
     });
 
@@ -308,7 +399,18 @@
       msgEl.textContent = text;
       msgEl.className = "message " + type;
       msgEl.style.display = "block";
-      setTimeout(()=>{ msgEl.style.display="none"; }, 6000);
+      setTimeout(()=>{ msgEl.style.display="none"; }, 8000);
+    }
+
+    // Add test button for debugging (remove in production)
+    if (DEBUG_MODE) {
+      const testBtn = document.createElement('button');
+      testBtn.textContent = 'Test EmailJS';
+      testBtn.type = 'button';
+      testBtn.style.marginTop = '10px';
+      testBtn.style.background = '#28a745';
+      testBtn.onclick = testEmailJS;
+      document.querySelector('.reservation-form').appendChild(testBtn);
     }
   </script>
 </body>
