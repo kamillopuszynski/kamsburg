@@ -73,9 +73,17 @@
     </div>
   </div>
 
+  <!-- EmailJS SDK -->
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+  
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
     import { getDatabase, ref, push, set, onValue } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+
+    // Initialize EmailJS
+    (function() {
+      emailjs.init("au27lQTjY68orqjdG"); // Public key
+    })();
 
     // Firebase config
     const firebaseConfig = {
@@ -90,9 +98,6 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
-
-    // Apps Script Web App URL (deployed endpoint)
-    const EMAIL_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbx7qn3F98YAr1spnIVpNc9v_eFvmXLz4MwNyyDplqClMJqN-UrS933slj5wBIxIancg/exec";
 
     // Availability + state
     const OPENING_HOURS = { start: 10, end: 22 };
@@ -194,6 +199,16 @@
       return true;
     }
 
+    // Generate reservation code
+    function generateReservationCode() {
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+      let code = '';
+      for (let i = 0; i < 8; i++) {
+        code += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      return code;
+    }
+
     // Submit
     document.getElementById('reservationForm').addEventListener('submit', async (e)=>{
       e.preventDefault();
@@ -234,6 +249,7 @@
         const newRef = push(ref(db, `reservations/${date}`));
         const id = newRef.key;
         const cancelCode = String(Math.floor(100000 + Math.random()*900000)); // 6-digit
+        const reservationCode = generateReservationCode(); // 8-character alphanumeric code
 
         // Build manage URL (assumes reservation.html in same folder)
         const base = location.origin + location.pathname.replace(/[^/]+$/, '');
@@ -243,6 +259,7 @@
           id,
           status: "active",
           cancelCode,
+          reservationCode,
           firstName, lastName, phone, email,
           people, date, hour,
           tableCategory: cat,
@@ -253,19 +270,29 @@
         // save reservation
         await set(newRef, payload);
 
-        // send confirmation email (FORM DATA → Apps Script-friendly)
-        const body = new URLSearchParams();
-        body.append("to", email);
-        body.append("manageUrl", manageUrl);
-        body.append("reservation", JSON.stringify(payload));
+        // Send confirmation email using EmailJS
+        const emailParams = {
+          to_email: email,
+          to_name: `${firstName} ${lastName}`,
+          reservation_code: reservationCode,
+          reservation_date: date,
+          reservation_time: `${hour}:00`,
+          people_count: people,
+          table_number: `${cat}-${tableNumber}`,
+          manage_url: manageUrl,
+          cancel_code: cancelCode
+        };
 
-        await fetch(EMAIL_WEBHOOK_URL, {
-          method: "POST",
-          mode: "no-cors",
-          body
-        });
+        // Using your service ID and template ID
+        await emailjs.send('service_azwud8j', 'template_n7iejzw', emailParams, 'bCOeBMZ5MF-a8A9l3weiW')
+          .then(function(response) {
+            console.log('Email sent successfully!', response.status, response.text);
+          }, function(error) {
+            console.log('Failed to send email:', error);
+            // Still show success message even if email fails
+          });
 
-        showMsg(`Rezerwacja potwierdzona! Sprawdź maila: ${email}`, "success");
+        showMsg(`Rezerwacja potwierdzona! Twój kod rezerwacji: ${reservationCode}. Sprawdź maila: ${email}`, "success");
         e.target.reset();
         document.querySelectorAll('.time-slot').forEach(s=>s.classList.remove('selected'));
         selectedHour = null;
