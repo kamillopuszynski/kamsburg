@@ -31,24 +31,30 @@
       --danger: #e74c3c;
     }
 
+    html {
+      height: 100%;
+    }
+
     body {
       font-family: 'Montserrat', sans-serif;
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      min-height: 100vh;
+      min-height: 100%;
       color: #333;
+      display: flex;
+      flex-direction: column;
     }
 
     /* Header */
     header {
       background: white;
-      padding: 2rem 0;
+      padding: 1.5rem 0;
       text-align: center;
       box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     }
 
     .logo {
       font-family: 'Playfair Display', serif;
-      font-size: 3rem;
+      font-size: 2.8rem;
       color: var(--primary);
       margin-bottom: 0.5rem;
     }
@@ -61,15 +67,16 @@
     /* Main Container */
     .container {
       max-width: 800px;
-      margin: 3rem auto;
+      margin: 2rem auto;
       padding: 0 1rem;
+      flex: 1;
     }
 
     /* Reservation Card */
     .reservation-card {
       background: white;
       border-radius: 15px;
-      padding: 3rem;
+      padding: 2.5rem;
       box-shadow: 0 10px 30px rgba(0,0,0,0.1);
       animation: fadeIn 0.6s ease-out;
     }
@@ -213,6 +220,7 @@
     .btn-danger:hover:not(:disabled) {
       background: #c0392b;
       transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
     }
 
     .btn-secondary {
@@ -223,6 +231,7 @@
     .btn-secondary:hover {
       background: #7f8c8d;
       transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
     }
 
     .btn:disabled {
@@ -370,6 +379,39 @@
       100% { transform: rotate(360deg); }
     }
 
+    /* Footer */
+    footer {
+      background: white;
+      padding: 1.5rem;
+      text-align: center;
+      box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+      margin-top: auto;
+    }
+
+    .footer-content {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .contact-info {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .contact-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--gray);
+    }
+
+    .contact-item i {
+      color: var(--primary);
+    }
+
     /* Responsive */
     @media (max-width: 768px) {
       .logo {
@@ -488,7 +530,7 @@
         <button class="btn btn-danger" id="confirmCancel">
           <i class="fas fa-check"></i> Potwierdź anulowanie
         </button>
-        <button class="btn btn-secondary" onclick="closeModal()">
+        <button class="btn btn-secondary" id="closeModal">
           <i class="fas fa-times"></i> Anuluj
         </button>
       </div>
@@ -496,6 +538,28 @@
       <div id="modalErr" class="message error"></div>
     </div>
   </div>
+
+  <footer>
+    <div class="footer-content">
+      <div class="contact-info">
+        <div class="contact-item">
+          <i class="fas fa-phone"></i>
+          <span>123 456 789</span>
+        </div>
+        <div class="contact-item">
+          <i class="fas fa-envelope"></i>
+          <span>info@kamsburg.pl</span>
+        </div>
+        <div class="contact-item">
+          <i class="fas fa-map-marker-alt"></i>
+          <span>ul. Smaczna 123, Warszawa</span>
+        </div>
+      </div>
+      <p style="color: var(--gray); font-size: 0.9rem;">
+        © 2024 KamsBurg. Wszelkie prawa zastrzeżone.
+      </p>
+    </div>
+  </footer>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
@@ -534,6 +598,7 @@
       cancelModal: document.getElementById('cancelModal'),
       code: document.getElementById('code'),
       confirmCancel: document.getElementById('confirmCancel'),
+      closeModal: document.getElementById('closeModal'),
       msg: document.getElementById('msg'),
       err: document.getElementById('err'),
       modalErr: document.getElementById('modalErr'),
@@ -593,13 +658,18 @@
     }
 
     function setupEventListeners() {
+      // Cancel button click
       ui.cancelBtn.addEventListener('click', () => {
         ui.cancelModal.classList.add('show');
         ui.code.value = '';
         ui.modalErr.style.display = 'none';
       });
 
+      // Confirm cancel button click
       ui.confirmCancel.addEventListener('click', confirmCancel);
+
+      // Close modal button click
+      ui.closeModal.addEventListener('click', closeModal);
 
       // Close modal on outside click
       ui.cancelModal.addEventListener('click', (e) => {
