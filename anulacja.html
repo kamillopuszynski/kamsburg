@@ -4,73 +4,433 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Anuluj Rezerwację - KamsBurg</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+  
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
   <style>
-    * { margin:0; padding:0; box-sizing:border-box; }
-    body { font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; background:#f5f5f5; color:#333; line-height:1.6; }
-    .container { max-width:600px; margin:0 auto; padding:20px; }
-    header { background:#2c3e50; color:#fff; padding:2rem 0; text-align:center; margin-bottom:2rem; box-shadow:0 2px 5px rgba(0,0,0,.1); }
-    header h1 { font-size:2.5rem; font-weight:300; letter-spacing:1px; }
-    .cancel-form { background:#fff; padding:2rem; border-radius:8px; box-shadow:0 2px 10px rgba(0,0,0,.1); margin-bottom:2rem; }
-    .form-group { margin-bottom:1.5rem; }
-    label { display:block; margin-bottom:.5rem; font-weight:500; color:#555; }
-    input { width:100%; padding:.75rem; border:2px solid #ddd; border-radius:4px; font-size:1rem; transition:border-color .3s; }
-    input:focus { outline:none; border-color:#3498db; }
-    button { background:#e74c3c; color:#fff; padding:.75rem 2rem; border:none; border-radius:4px; font-size:1rem; cursor:pointer; transition:background .3s; width:100%; margin-top:1rem; }
-    button:hover { background:#c0392b; }
-    button:disabled { background:#bdc3c7; cursor:not-allowed; }
-    .message { padding:1rem; border-radius:4px; margin-top:1rem; display:none; }
-    .message.success { background:#d4edda; color:#155724; border:1px solid #c3e6cb; }
-    .message.error { background:#f8d7da; color:#721c24; border:1px solid #f5c6cb; }
-    .message.info { background:#d1ecf1; color:#0c5460; border:1px solid #bee5eb; }
-    .reservation-details { background:#f8f9fa; padding:1rem; border-radius:4px; margin-top:1rem; border:1px solid #ddd; display:none; }
-    .reservation-details h3 { margin-bottom:0.5rem; color:#2c3e50; }
-    .reservation-details p { margin-bottom:0.3rem; }
-    .back-link { display:block; text-align:center; margin-top:2rem; color:#3498db; text-decoration:none; }
-    .back-link:hover { text-decoration:underline; }
-    .instructions { background:#e3f2fd; padding:1rem; border-radius:4px; margin-bottom:1.5rem; border-left:4px solid #2196f3; }
-    .instructions h3 { margin-bottom:0.5rem; color:#1976d2; }
-    .instructions p { margin-bottom:0; }
-    @media (max-width:600px){
-      .container { padding:10px; }
-      header h1 { font-size:2rem; }
-      .cancel-form { padding:1rem; }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary: #2c3e50;
+      --secondary: #e74c3c;
+      --accent: #f39c12;
+      --light: #ecf0f1;
+      --dark: #1a1a1a;
+      --gray: #95a5a6;
+    }
+
+    html {
+      height: 100%;
+    }
+
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100%;
+      color: #333;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header */
+    header {
+      background: white;
+      padding: 1.5rem 0;
+      text-align: center;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      position: relative;
+    }
+
+    .logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.8rem;
+      color: var(--primary);
+      margin-bottom: 0.5rem;
+    }
+
+    .tagline {
+      color: var(--gray);
+      font-size: 1.1rem;
+    }
+
+    /* Main Container */
+    .container {
+      max-width: 800px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      flex: 1;
+    }
+
+    /* Cancel Form Card */
+    .cancel-card {
+      background: white;
+      border-radius: 15px;
+      padding: 2.5rem;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      animation: fadeIn 0.6s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem;
+      color: var(--primary);
+      margin-bottom: 0.5rem;
+      text-align: center;
+    }
+
+    .section-subtitle {
+      text-align: center;
+      color: var(--gray);
+      margin-bottom: 2rem;
+    }
+
+    /* Instructions */
+    .instructions {
+      background: #e3f2fd;
+      padding: 1.5rem;
+      border-radius: 8px;
+      margin-bottom: 2rem;
+      border-left: 4px solid #2196f3;
+    }
+
+    .instructions h3 {
+      margin-bottom: 0.5rem;
+      color: #1976d2;
+      font-size: 1.2rem;
+    }
+
+    .instructions p {
+      margin-bottom: 0;
+      line-height: 1.6;
+    }
+
+    /* Form Styles */
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      color: var(--primary);
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 1rem;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(243, 156, 18, 0.1);
+    }
+
+    /* Button */
+    .btn {
+      padding: 1rem 2rem;
+      border: none;
+      border-radius: 8px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      width: 100%;
+      margin-top: 1rem;
+    }
+
+    .btn-danger {
+      background: var(--secondary);
+      color: white;
+    }
+
+    .btn-danger:hover:not(:disabled) {
+      background: #c0392b;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+
+    .btn-danger:disabled {
+      background: #bdc3c7;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    /* Messages */
+    .message {
+      padding: 1rem;
+      border-radius: 8px;
+      margin-top: 1.5rem;
+      display: none;
+      animation: slideIn 0.3s ease-out;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .message.success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+
+    .message.error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+
+    .message.info {
+      background: #d1ecf1;
+      color: #0c5460;
+      border: 1px solid #bee5eb;
+    }
+
+    /* Reservation Details */
+    .reservation-details {
+      background: #f8f9fa;
+      border-radius: 8px;
+      padding: 2rem;
+      margin-top: 2rem;
+      border: 2px solid #e9ecef;
+      display: none;
+    }
+
+    .reservation-details h3 {
+      color: var(--primary);
+      margin-bottom: 1.5rem;
+      text-align: center;
+      font-size: 1.5rem;
+    }
+
+    .details-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .detail-item {
+      background: white;
+      padding: 1rem;
+      border-radius: 6px;
+      border: 1px solid #e0e0e0;
+    }
+
+    .detail-label {
+      font-size: 0.9rem;
+      color: var(--gray);
+      margin-bottom: 0.3rem;
+    }
+
+    .detail-value {
+      font-weight: 600;
+      color: var(--primary);
+    }
+
+    /* Loading */
+    .loading {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid #f3f3f3;
+      border-top: 2px solid var(--primary);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-right: 8px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Back Link */
+    .back-link {
+      display: inline-block;
+      text-align: center;
+      margin-top: 2rem;
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.3s ease;
+    }
+
+    .back-link:hover {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+
+    /* Footer */
+    footer {
+      background: white;
+      padding: 1.5rem;
+      text-align: center;
+      box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+      margin-top: auto;
+    }
+
+    .footer-content {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .contact-info {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .contact-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--gray);
+    }
+
+    .contact-item i {
+      color: var(--primary);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .logo {
+        font-size: 2rem;
+      }
+
+      .cancel-card {
+        padding: 2rem 1.5rem;
+      }
+
+      .details-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .contact-info {
+        flex-direction: column;
+        gap: 1rem;
+      }
     }
   </style>
 </head>
 <body>
   <header>
-    <h1>KamsBurg - Anuluj Rezerwację</h1>
+    <div class="logo">KamsBurg</div>
+    <div class="tagline">Luksusowa restauracja • wyjątkowe smaki</div>
   </header>
 
-  <div class="container">
-    <div class="instructions">
-      <h3>Jak anulować rezerwację?</h3>
-      <p>Wprowadź kod rezerwacji, który otrzymałeś podczas dokonywania rezerwacji. Kod składa się z 6 znaków (litery i cyfry).</p>
-    </div>
+  <main class="container">
+    <div class="cancel-card">
+      <h2 class="section-title">Anuluj Rezerwację</h2>
+      <p class="section-subtitle">Wprowadź kod rezerwacji, aby ją anulować</p>
+      
+      <div class="instructions">
+        <h3><i class="fas fa-info-circle"></i> Jak anulować rezerwację?</h3>
+        <p>Wprowadź kod rezerwacji, który otrzymałeś podczas dokonywania rezerwacji. Kod składa się z 6 znaków (litery i cyfry).</p>
+      </div>
 
-    <div class="cancel-form">
       <form id="cancelReservationForm">
         <div class="form-group">
           <label for="reservationCode">Kod rezerwacji:</label>
           <input type="text" id="reservationCode" placeholder="Wpisz 6-znakowy kod" maxlength="6" required>
         </div>
-        <button type="submit" id="cancelBtn">Anuluj rezerwację</button>
+        <button type="submit" id="cancelBtn" class="btn btn-danger">Anuluj rezerwację</button>
       </form>
 
       <div id="message" class="message"></div>
       
       <div id="reservationDetails" class="reservation-details">
         <h3>Szczegóły rezerwacji:</h3>
-        <p><strong>Imię i nazwisko:</strong> <span id="detailName"></span></p>
-        <p><strong>Liczba osób:</strong> <span id="detailPeople"></span></p>
-        <p><strong>Data:</strong> <span id="detailDate"></span></p>
-        <p><strong>Godzina:</strong> <span id="detailTime"></span></p>
-        <p><strong>Stolik:</strong> <span id="detailTable"></span></p>
+        <div class="details-grid">
+          <div class="detail-item">
+            <div class="detail-label">Imię i nazwisko</div>
+            <div class="detail-value" id="detailName"></div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Liczba osób</div>
+            <div class="detail-value" id="detailPeople"></div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Data</div>
+            <div class="detail-value" id="detailDate"></div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Godzina</div>
+            <div class="detail-value" id="detailTime"></div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Stolik</div>
+            <div class="detail-value" id="detailTable"></div>
+          </div>
+        </div>
+      </div>
+      
+      <div style="text-align: center;">
+        <a href="index.html" class="back-link"><i class="fas fa-arrow-left"></i> Powrót do strony głównej</a>
       </div>
     </div>
+  </main>
 
-    <a href="index.html" class="back-link">Powrót do strony głównej</a>
-  </div>
+  <footer>
+    <div class="footer-content">
+      <div class="contact-info">
+        <div class="contact-item">
+          <i class="fas fa-phone"></i>
+          <span>123 456 789</span>
+        </div>
+        <div class="contact-item">
+          <i class="fas fa-envelope"></i>
+          <span>info@kamsburg.pl</span>
+        </div>
+        <div class="contact-item">
+          <i class="fas fa-map-marker-alt"></i>
+          <span>ul. Smaczna 123, Warszawa</span>
+        </div>
+      </div>
+      <p style="color: var(--gray); font-size: 0.9rem;">
+        © 2024 KamsBurg. Wszelkie prawa zastrzeżone.
+      </p>
+    </div>
+  </footer>
 
   <!-- Firebase + logika aplikacji -->
   <script type="module">
@@ -185,7 +545,7 @@
 
       // Wyłącz przycisk podczas przetwarzania
       cancelBtn.disabled = true;
-      cancelBtn.textContent = 'Sprawdzanie...';
+      cancelBtn.innerHTML = '<span class="loading"></span>Sprawdzanie...';
       
       try {
         // Znajdź rezerwację
