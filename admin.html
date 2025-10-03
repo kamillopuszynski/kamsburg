@@ -4,302 +4,739 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>KamsBurg – Panel admina (rezerwacje)</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+  
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
   <style>
-    *{box-sizing:border-box}
-    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;background:#f6f7fb;color:#1f2937;margin:0}
-    header{background:#111827;color:#fff;padding:18px 20px}
-    header h1{margin:0;font-weight:600;font-size:20px;letter-spacing:.2px}
-    .container{max-width:1100px;margin:24px auto;padding:0 14px}
-    .card{background:#fff;border:1px solid #e5e7eb;border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,.04);padding:16px;margin-bottom:16px}
-    .row{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px}
-    .row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
-    .row-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-    label{display:block;font-size:.88rem;color:#374151;margin-bottom:6px}
-    input,select,button{width:100%;padding:10px 12px;border:1.5px solid #d1d5db;border-radius:10px;font-size:.95rem;background:#fff}
-    input:focus,select:focus{outline:none;border-color:#3b82f6;box-shadow:0 0 0 3px rgba(59,130,246,.15)}
-    button{background:#2563eb;color:#fff;border:0;cursor:pointer}
-    button:hover{background:#1d4ed8}
-    button.ghost{background:#fff;color:#111;border:1.5px solid #e5e7eb}
-    .toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
-    .stats{display:flex;gap:14px;flex-wrap:wrap}
-    .stat{background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:10px 12px;font-size:.92rem}
-    table{width:100%;border-collapse:separate;border-spacing:0;margin-top:10px}
-    th,td{padding:10px 12px;border-bottom:1px solid #f1f5f9;font-size:.95rem;text-align:left;vertical-align:top}
-    th{background:#f8fafc;color:#334155;position:sticky;top:0;z-index:1}
-    tr:hover td{background:#fafafa}
-    .badge{display:inline-block;padding:2px 8px;border-radius:999px;font-size:.8rem;border:1px solid #e5e7eb;background:#f9fafb;color:#374151}
-    .danger{background:#fee2e2;border-color:#fecaca;color:#991b1b}
-    .success{background:#dcfce7;border-color:#bbf7d0;color:#166534}
-    .muted{color:#6b7280;font-size:.88rem}
-    .right{justify-self:end}
-    .actions{display:flex;gap:8px}
-    .nowrap{white-space:nowrap}
-    @media (max-width:900px){.row{grid-template-columns:1fr 1fr}.row-3{grid-template-columns:1fr}}
-    @media (max-width:640px){.row{grid-template-columns:1fr}.row-2{grid-template-columns:1fr}}
-  </style>
-</head>
-<body>
-<header>
-  <h1>KamsBurg – Panel admina rezerwacji</h1>
-</header>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-<div class="container">
+    :root {
+      --primary: #2c3e50;
+      --secondary: #e74c3c;
+      --accent: #f39c12;
+      --light: #ecf0f1;
+      --dark: #1a1a1a;
+      --gray: #95a5a6;
+    }
 
-  <div class="card">
-    <div class="row-3">
-      <div>
-        <label for="date">Data</label>
-        <input type="date" id="date">
-      </div>
-      <div>
-        <label for="hourFilter">Filtr: godzina</label>
-        <select id="hourFilter">
-          <option value="">Wszystkie</option>
-        </select>
-      </div>
-      <div>
-        <label for="search">Szukaj (imię, nazwisko, tel, email, kod)</label>
-        <input id="search" placeholder="np. Kowalski, 600...">
-      </div>
-    </div>
+    html {
+      height: 100%;
+    }
 
-    <div class="toolbar">
-      <div class="row-3" style="width:100%">
-        <div>
-          <label for="sizeFilter">Filtr: kategoria stolika</label>
-          <select id="sizeFilter">
-            <option value="">Wszystkie</option>
-            <option value="2">2-os.</option>
-            <option value="4">4-os.</option>
-            <option value="6">6-os.</option>
-            <option value="8">8-os.</option>
-          </select>
-        </div>
-        <div>
-          <label for="peopleFilter">Filtr: liczba osób</label>
-          <select id="peopleFilter">
-            <option value="">Wszystkie</option>
-            <option>2</option><option>3</option><option>4</option>
-            <option>5</option><option>6</option><option>7</option><option>8</option>
-          </select>
-        </div>
-        <div class="right">
-          <label>&nbsp;</label>
-          <button id="exportCsv">Eksport CSV</button>
-        </div>
-      </div>
-    </div>
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100%;
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden; /* Prevent horizontal scroll */
+    }
 
-    <div class="stats" id="stats" style="margin-top:12px"></div>
-  </div>
+    /* Header */
+    header {
+      background: white;
+      padding: 1.5rem 0;
+      text-align: center;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      position: relative;
+    }
 
-  <div class="card" style="overflow:auto; max-height:70vh;">
-    <table id="table">
-      <thead>
-        <tr>
-          <th>Kod</th>
-          <th>Data / Godz</th>
-          <th>Gość</th>
-          <th>Kontakt</th>
-          <th>Liczba osób</th>
-          <th>Stolik</th>
-          <th>Utworzono</th>
-          <th class="nowrap">Akcje</th>
-        </tr>
-      </thead>
-      <tbody id="tbody">
-        <tr><td colspan="8" class="muted">Brak danych…</td></tr>
-      </tbody>
-    </table>
-  </div>
-</div>
+    .logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.8rem;
+      color: var(--primary);
+      margin-bottom: 0.5rem;
+    }
 
-<!-- Firebase + logika -->
-<script type="module">
-  // --- Firebase imports (CDN) ---
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-  import { getDatabase, ref, onValue, remove } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+    .tagline {
+      color: var(--gray);
+      font-size: 1.1rem;
+    }
 
-  // --- Twój config (z databaseURL) ---
-  const firebaseConfig = {
-    apiKey: "AIzaSyAOIXtjM9PMFXa0YFZfiDpfXlq_5sKxjv8",
-    authDomain: "systemrezerwacji-dbd7c.firebaseapp.com",
-    databaseURL: "https://systemrezerwacji-dbd7c-default-rtdb.europe-west1.firebasedatabase.app",
-    projectId: "systemrezerwacji-dbd7c",
-    storageBucket: "systemrezerwacji-dbd7c.firebasestorage.app",
-    messagingSenderId: "1018043438907",
-    appId: "1:1018043438907:web:d9b9e9190bd189dc2b491e",
-    measurementId: "G-YXB460ZGR1"
-  };
-  const app = initializeApp(firebaseConfig);
-  const db  = getDatabase(app);
+    /* Main Container */
+    .container {
+      max-width: 100%;
+      margin: 2rem 1rem;
+      padding: 0;
+      flex: 1;
+    }
 
-  // --- UI refs ---
-  const dateEl = document.getElementById('date');
-  const hourFilterEl = document.getElementById('hourFilter');
-  const sizeFilterEl = document.getElementById('sizeFilter');
-  const peopleFilterEl = document.getElementById('peopleFilter');
-  const searchEl = document.getElementById('search');
-  const tbody = document.getElementById('tbody');
-  const statsBox = document.getElementById('stats');
-  const exportBtn = document.getElementById('exportCsv');
+    /* Admin Card */
+    .admin-card {
+      background: white;
+      border-radius: 15px;
+      padding: 2rem;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      animation: fadeIn 0.6s ease-out;
+      margin-bottom: 2rem;
+    }
 
-  // --- State ---
-  let all = []; // wszystkie rezerwacje (z RTDB dla dnia)
-  let filtered = [];
-
-  // domyślna data = dziś
-  dateEl.value = new Date().toISOString().split('T')[0];
-
-  // wypełnij filtr godzin 10..21
-  for (let h=10; h<22; h++){
-    const o = document.createElement('option');
-    o.value = String(h);
-    o.textContent = `${h}:00`;
-    hourFilterEl.appendChild(o);
-  }
-
-  // nasłuch dla wybranej daty
-  function listen(dateStr){
-    onValue(ref(db, `reservations/${dateStr}`), snap=>{
-      const val = snap.val();
-      all = val ? Object.entries(val).map(([id, r])=>({ id, ...r })) : [];
-      render();
-    });
-  }
-  listen(dateEl.value);
-
-  // filtry
-  [dateEl, hourFilterEl, sizeFilterEl, peopleFilterEl, searchEl].forEach(el=>{
-    el.addEventListener('input', ()=>{
-      if (el === dateEl) listen(dateEl.value);
-      render();
-    });
-  });
-
-  // render
-  function render(){
-    const q = searchEl.value.trim().toLowerCase();
-    const h = hourFilterEl.value;
-    const s = sizeFilterEl.value;
-    const p = peopleFilterEl.value;
-
-    filtered = all
-      .slice()
-      .sort((a,b)=> (a.hour||0) - (b.hour||0) || (a.tableCategory||0)-(b.tableCategory||0))
-      .filter(r => !h || String(r.hour) === h)
-      .filter(r => !s || String(r.tableCategory) === s)
-      .filter(r => !p || String(r.people) === p)
-      .filter(r => {
-        if(!q) return true;
-        const bag = [
-          r.id, r.firstName, r.lastName, r.phone, r.email,
-          (r.people??'')+'', (r.tableCategory??'')+'', (r.tableNumber??'')+''
-        ].join(' ').toLowerCase();
-        return bag.includes(q);
-      });
-
-    // tabela
-    tbody.innerHTML = '';
-    if (filtered.length === 0){
-      const tr = document.createElement('tr');
-      tr.innerHTML = `<td colspan="8" class="muted">Brak rezerwacji dla wybranych kryteriów.</td>`;
-      tbody.appendChild(tr);
-    } else {
-      for (const r of filtered){
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td class="nowrap"><span class="badge">${r.id}</span></td>
-          <td>${r.date ?? ''}<br><span class="badge">${(r.hour??'')}:00</span></td>
-          <td>${escapeHtml(r.firstName||'')} ${escapeHtml(r.lastName||'')}</td>
-          <td>
-            <div class="nowrap">${escapeHtml(r.phone||'')}</div>
-            <div class="muted">${escapeHtml(r.email||'')}</div>
-          </td>
-          <td>${r.people ?? ''}</td>
-          <td>${r.tableCategory ?? ''}-os., nr ${r.tableNumber ?? ''}</td>
-          <td class="muted">${formatDate(r.timestamp || r.createdAt)}</td>
-          <td>
-            <div class="actions">
-              <button class="ghost" data-copy="${r.id}">Kopiuj kod</button>
-              <button data-cancel="${r.id}" class="danger">Anuluj</button>
-            </div>
-          </td>
-        `;
-        tbody.appendChild(tr);
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
       }
     }
 
-    // statystyki
-    const total = all.length;
-    const byCat = countBy(all.map(x=>x.tableCategory));
-    const s2 = byCat['2']||0, s4 = byCat['4']||0, s6 = byCat['6']||0, s8 = byCat['8']||0;
-    statsBox.innerHTML = `
-      <div class="stat">Razem: <b>${total}</b></div>
-      <div class="stat">2-os: <b>${s2}</b></div>
-      <div class="stat">4-os: <b>${s4}</b></div>
-      <div class="stat">6-os: <b>${s6}</b></div>
-      <div class="stat">8-os: <b>${s8}</b></div>
-    `;
-
-    // akcje (delegacja)
-    tbody.querySelectorAll('button[data-cancel]').forEach(btn=>{
-      btn.onclick = async ()=>{
-        const id = btn.getAttribute('data-cancel');
-        const dateStr = dateEl.value;
-        const ok = confirm(`Na pewno anulować rezerwację ${id}?`);
-        if(!ok) return;
-        try{
-          await remove(ref(db, `reservations/${dateStr}/${id}`));
-        }catch(e){
-          alert('Błąd anulowania. Sprawdź uprawnienia Rules.');
-          console.error(e);
-        }
-      };
-    });
-    tbody.querySelectorAll('button[data-copy]').forEach(btn=>{
-      btn.onclick = async ()=>{
-        const code = btn.getAttribute('data-copy');
-        try { await navigator.clipboard.writeText(code); btn.textContent='Skopiowano!'; setTimeout(()=>btn.textContent='Kopiuj kod',1200); }
-        catch { alert(code); }
-      };
-    });
-  }
-
-  function formatDate(iso){
-    if(!iso) return '';
-    try{
-      const d = new Date(iso);
-      return d.toLocaleString();
-    }catch{ return iso; }
-  }
-  function countBy(arr){
-    const m={}; for(const v of arr){ m[String(v||'')] = (m[String(v||'')]||0)+1; } return m;
-  }
-  function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c])); }
-
-  // eksport CSV (filtrowane)
-  exportBtn.addEventListener('click', ()=>{
-    const rows = [
-      ['id','date','hour','firstName','lastName','phone','email','people','tableCategory','tableNumber','createdAt']
-    ];
-    for(const r of filtered){
-      rows.push([
-        r.id, r.date||'', r.hour||'',
-        r.firstName||'', r.lastName||'',
-        r.phone||'', r.email||'',
-        r.people||'', r.tableCategory||'', r.tableNumber||'',
-        r.timestamp||r.createdAt||''
-      ]);
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem;
+      color: var(--primary);
+      margin-bottom: 0.5rem;
+      text-align: center;
     }
-    const csv = rows.map(row=>row.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
-    const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = `rezerwacje_${dateEl.value}.csv`;
-    a.click();
-    URL.revokeObjectURL(a.href);
-  });
-</script>
+
+    .section-subtitle {
+      text-align: center;
+      color: var(--gray);
+      margin-bottom: 2rem;
+    }
+
+    /* Form Styles */
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .form-group {
+      position: relative;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      color: var(--primary);
+      font-size: 0.9rem;
+    }
+
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 0.8rem;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      transition: all 0.3s ease;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(243, 156, 18, 0.1);
+    }
+
+    /* Toolbar */
+    .toolbar {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-top: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    /* Button */
+    .btn {
+      padding: 0.8rem 1.5rem;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: #34495e;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+
+    .btn-danger {
+      background: var(--secondary);
+      color: white;
+    }
+
+    .btn-danger:hover:not(:disabled) {
+      background: #c0392b;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--primary);
+      border: 2px solid var(--primary);
+    }
+
+    .btn-ghost:hover:not(:disabled) {
+      background: var(--primary);
+      color: white;
+    }
+
+    /* Stats */
+    .stats {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-top: 1.5rem;
+    }
+
+    .stat {
+      background: #f8f9fa;
+      border: 1px solid #e9ecef;
+      border-radius: 8px;
+      padding: 0.8rem;
+      flex: 1;
+      min-width: 100px;
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .stat-label {
+      font-size: 0.8rem;
+      color: var(--gray);
+    }
+
+    /* Table */
+    .table-container {
+      background: white;
+      border-radius: 15px;
+      padding: 1.5rem;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      overflow-x: auto; /* Allow horizontal scroll only for table */
+      max-height: 70vh;
+    }
+
+    table {
+      width: 100%;
+      min-width: 800px; /* Minimum width for table readability */
+      border-collapse: separate;
+      border-spacing: 0;
+      margin-top: 1rem;
+    }
+
+    th, td {
+      padding: 0.8rem;
+      border-bottom: 1px solid #e9ecef;
+      font-size: 0.85rem;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #f8f9fa;
+      color: var(--primary);
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      font-weight: 600;
+      font-size: 0.8rem;
+    }
+
+    tr:hover td {
+      background: #f8f9fa;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 0.2rem 0.6rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      border: 1px solid #e0e0e0;
+      background: #f8f9fa;
+      color: var(--primary);
+    }
+
+    .badge-danger {
+      background: #fee2e2;
+      border-color: #fecaca;
+      color: var(--secondary);
+    }
+
+    .badge-success {
+      background: #dcfce7;
+      border-color: #bbf7d0;
+      color: #166534;
+    }
+
+    .muted {
+      color: var(--gray);
+      font-size: 0.8rem;
+    }
+
+    .actions {
+      display: flex;
+      gap: 0.3rem;
+      flex-wrap: wrap;
+    }
+
+    .actions .btn {
+      padding: 0.4rem 0.8rem;
+      font-size: 0.75rem;
+    }
+
+    .nowrap {
+      white-space: nowrap;
+    }
+
+    /* Loading */
+    .loading {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid #f3f3f3;
+      border-top: 2px solid var(--primary);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-right: 8px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Footer */
+    footer {
+      background: white;
+      padding: 1.5rem;
+      text-align: center;
+      box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+      margin-top: auto;
+    }
+
+    .footer-content {
+      max-width: 100%;
+      margin: 0 auto;
+    }
+
+    .contact-info {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .contact-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--gray);
+      font-size: 0.9rem;
+    }
+
+    .contact-item i {
+      color: var(--primary);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .logo {
+        font-size: 2rem;
+      }
+
+      .admin-card, .table-container {
+        padding: 1rem;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .stats {
+        flex-direction: column;
+      }
+
+      .actions {
+        flex-direction: column;
+      }
+
+      .contact-info {
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      .section-title {
+        font-size: 1.5rem;
+      }
+
+      th, td {
+        padding: 0.5rem;
+        font-size: 0.75rem;
+      }
+
+      .actions .btn {
+        padding: 0.3rem 0.6rem;
+        font-size: 0.7rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .container {
+        margin: 1rem 0.5rem;
+      }
+
+      .admin-card, .table-container {
+        padding: 0.8rem;
+      }
+
+      .stats {
+        gap: 0.3rem;
+      }
+
+      .stat {
+        padding: 0.5rem;
+        min-width: 80px;
+      }
+
+      .stat-value {
+        font-size: 1.1rem;
+      }
+
+      .stat-label {
+        font-size: 0.7rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">KamsBurg</div>
+    <div class="tagline">Luksusowa restauracja • wyjątkowe smaki</div>
+  </header>
+
+  <main class="container">
+    <div class="admin-card">
+      <h2 class="section-title">Panel admina rezerwacji</h2>
+      <p class="section-subtitle">Zarządzaj rezerwacjami w restauracji</p>
+      
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="date">Data</label>
+          <input type="date" id="date">
+        </div>
+        <div class="form-group">
+          <label for="hourFilter">Filtr: godzina</label>
+          <select id="hourFilter">
+            <option value="">Wszystkie</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="search">Szukaj</label>
+          <input id="search" placeholder="Imię, nazwisko, tel...">
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <div class="form-grid" style="width:100%">
+          <div class="form-group">
+            <label for="sizeFilter">Kategoria stolika</label>
+            <select id="sizeFilter">
+              <option value="">Wszystkie</option>
+              <option value="2">2-os.</option>
+              <option value="4">4-os.</option>
+              <option value="6">6-os.</option>
+              <option value="8">8-os.</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="peopleFilter">Liczba osób</label>
+            <select id="peopleFilter">
+              <option value="">Wszystkie</option>
+              <option>2</option><option>3</option><option>4</option>
+              <option>5</option><option>6</option><option>7</option><option>8</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>&nbsp;</label>
+            <button id="exportCsv" class="btn btn-primary">Eksport CSV</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="stats" id="stats"></div>
+    </div>
+
+    <div class="table-container">
+      <table id="table">
+        <thead>
+          <tr>
+            <th>Kod</th>
+            <th>Data / Godz</th>
+            <th>Gość</th>
+            <th>Kontakt</th>
+            <th>Osoby</th>
+            <th>Stolik</th>
+            <th>Utworzono</th>
+            <th>Akcje</th>
+          </tr>
+        </thead>
+        <tbody id="tbody">
+          <tr><td colspan="8" class="muted">Brak danych…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <footer>
+    <div class="footer-content">
+      <div class="contact-info">
+        <div class="contact-item">
+          <i class="fas fa-phone"></i>
+          <span>123 456 789</span>
+        </div>
+        <div class="contact-item">
+          <i class="fas fa-envelope"></i>
+          <span>info@kamsburg.pl</span>
+        </div>
+        <div class="contact-item">
+          <i class="fas fa-map-marker-alt"></i>
+          <span>ul. Smaczna 123, Warszawa</span>
+        </div>
+      </div>
+      <p style="color: var(--gray); font-size: 0.9rem;">
+        © 2024 KamsBurg. Wszelkie prawa zastrzeżone.
+      </p>
+    </div>
+  </footer>
+
+  <!-- Firebase + logika -->
+  <script type="module">
+    // --- Firebase imports (CDN) ---
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+    import { getDatabase, ref, onValue, remove } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+
+    // --- Twój config (z databaseURL) ---
+    const firebaseConfig = {
+      apiKey: "AIzaSyAOIXtjM9PMFXa0YFZfiDpfXlq_5sKxjv8",
+      authDomain: "systemrezerwacji-dbd7c.firebaseapp.com",
+      databaseURL: "https://systemrezerwacji-dbd7c-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "systemrezerwacji-dbd7c",
+      storageBucket: "systemrezerwacji-dbd7c.firebasestorage.app",
+      messagingSenderId: "1018043438907",
+      appId: "1:1018043438907:web:d9b9e9190bd189dc2b491e",
+      measurementId: "G-YXB460ZGR1"
+    };
+    const app = initializeApp(firebaseConfig);
+    const db  = getDatabase(app);
+
+    // --- UI refs ---
+    const dateEl = document.getElementById('date');
+    const hourFilterEl = document.getElementById('hourFilter');
+    const sizeFilterEl = document.getElementById('sizeFilter');
+    const peopleFilterEl = document.getElementById('peopleFilter');
+    const searchEl = document.getElementById('search');
+    const tbody = document.getElementById('tbody');
+    const statsBox = document.getElementById('stats');
+    const exportBtn = document.getElementById('exportCsv');
+
+    // --- State ---
+    let all = []; // wszystkie rezerwacje (z RTDB dla dnia)
+    let filtered = [];
+
+    // domyślna data = dziś
+    dateEl.value = new Date().toISOString().split('T')[0];
+
+    // wypełnij filtr godzin 10..21
+    for (let h=10; h<22; h++){
+      const o = document.createElement('option');
+      o.value = String(h);
+      o.textContent = `${h}:00`;
+      hourFilterEl.appendChild(o);
+    }
+
+    // nasłuch dla wybranej daty
+    function listen(dateStr){
+      onValue(ref(db, `reservations/${dateStr}`), snap=>{
+        const val = snap.val();
+        all = val ? Object.entries(val).map(([id, r])=>({ id, ...r })) : [];
+        render();
+      });
+    }
+    listen(dateEl.value);
+
+    // filtry
+    [dateEl, hourFilterEl, sizeFilterEl, peopleFilterEl, searchEl].forEach(el=>{
+      el.addEventListener('input', ()=>{
+        if (el === dateEl) listen(dateEl.value);
+        render();
+      });
+    });
+
+    // render
+    function render(){
+      const q = searchEl.value.trim().toLowerCase();
+      const h = hourFilterEl.value;
+      const s = sizeFilterEl.value;
+      const p = peopleFilterEl.value;
+
+      filtered = all
+        .slice()
+        .sort((a,b)=> (a.hour||0) - (b.hour||0) || (a.tableCategory||0)-(b.tableCategory||0))
+        .filter(r => !h || String(r.hour) === h)
+        .filter(r => !s || String(r.tableCategory) === s)
+        .filter(r => !p || String(r.people) === p)
+        .filter(r => {
+          if(!q) return true;
+          const bag = [
+            r.id, r.firstName, r.lastName, r.phone, r.email,
+            (r.people??'')+'', (r.tableCategory??'')+'', (r.tableNumber??'')+''
+          ].join(' ').toLowerCase();
+          return bag.includes(q);
+        });
+
+      // tabela
+      tbody.innerHTML = '';
+      if (filtered.length === 0){
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td colspan="8" class="muted">Brak rezerwacji dla wybranych kryteriów.</td>`;
+        tbody.appendChild(tr);
+      } else {
+        for (const r of filtered){
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td class="nowrap"><span class="badge">${r.id}</span></td>
+            <td>${r.date ?? ''}<br><span class="badge">${(r.hour??'')}:00</span></td>
+            <td>${escapeHtml(r.firstName||'')} ${escapeHtml(r.lastName||'')}</td>
+            <td>
+              <div class="nowrap">${escapeHtml(r.phone||'')}</div>
+              <div class="muted">${escapeHtml(r.email||'')}</div>
+            </td>
+            <td>${r.people ?? ''}</td>
+            <td>${r.tableCategory ?? ''}-${r.tableNumber ?? ''}</td>
+            <td class="muted">${formatDate(r.timestamp || r.createdAt)}</td>
+            <td>
+              <div class="actions">
+                <button class="btn btn-ghost" data-copy="${r.id}">Kopiuj</button>
+                <button class="btn btn-danger" data-cancel="${r.id}">Anuluj</button>
+              </div>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        }
+      }
+
+      // statystyki
+      const total = all.length;
+      const byCat = countBy(all.map(x=>x.tableCategory));
+      const s2 = byCat['2']||0, s4 = byCat['4']||0, s6 = byCat['6']||0, s8 = byCat['8']||0;
+      statsBox.innerHTML = `
+        <div class="stat">
+          <div class="stat-value">${total}</div>
+          <div class="stat-label">Razem</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value">${s2}</div>
+          <div class="stat-label">2-os</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value">${s4}</div>
+          <div class="stat-label">4-os</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value">${s6}</div>
+          <div class="stat-label">6-os</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value">${s8}</div>
+          <div class="stat-label">8-os</div>
+        </div>
+      `;
+
+      // akcje (delegacja)
+      tbody.querySelectorAll('button[data-cancel]').forEach(btn=>{
+        btn.onclick = async ()=>{
+          const id = btn.getAttribute('data-cancel');
+          const dateStr = dateEl.value;
+          const ok = confirm(`Na pewno anulować rezerwację ${id}?`);
+          if(!ok) return;
+          try{
+            await remove(ref(db, `reservations/${dateStr}/${id}`));
+          }catch(e){
+            alert('Błąd anulowania. Sprawdź uprawnienia Rules.');
+            console.error(e);
+          }
+        };
+      });
+      tbody.querySelectorAll('button[data-copy]').forEach(btn=>{
+        btn.onclick = async ()=>{
+          const code = btn.getAttribute('data-copy');
+          try { 
+            await navigator.clipboard.writeText(code); 
+            btn.textContent='Skopiowano!'; 
+            setTimeout(()=>btn.textContent='Kopiuj',1200); 
+          }
+          catch { alert(code); }
+        };
+      });
+    }
+
+    function formatDate(iso){
+      if(!iso) return '';
+      try{
+        const d = new Date(iso);
+        return d.toLocaleString();
+      }catch{ return iso; }
+    }
+    function countBy(arr){
+      const m={}; for(const v of arr){ m[String(v||'')] = (m[String(v||'')]||0)+1; } return m;
+    }
+    function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c])); }
+
+    // eksport CSV (filtrowane)
+    exportBtn.addEventListener('click', ()=>{
+      const rows = [
+        ['id','date','hour','firstName','lastName','phone','email','people','tableCategory','tableNumber','createdAt']
+      ];
+      for(const r of filtered){
+        rows.push([
+          r.id, r.date||'', r.hour||'',
+          r.firstName||'', r.lastName||'',
+          r.phone||'', r.email||'',
+          r.people||'', r.tableCategory||'', r.tableNumber||'',
+          r.timestamp||r.createdAt||''
+        ]);
+      }
+      const csv = rows.map(row=>row.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+      const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `rezerwacje_${dateEl.value}.csv`;
+      a.click();
+      URL.revokeObjectURL(a.href);
+    });
+  </script>
 </body>
 </html>
